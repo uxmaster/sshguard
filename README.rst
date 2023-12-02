@@ -14,11 +14,11 @@ several firewall backends.
 My changes
 ============
 
-I've added attack signatures for my app server in `Bun <https://bun.sh/>`_:
+I've added attack signatures for my app server in `Bun <https://bun.sh/>`_::
 
     [addr] 40[014]{1} [/]?{WORD}.*
 
-So it catches lines like:
+So it catches lines like::
 
     [6.6.6.3] 401 Session
     [6.6.6.0] 401 /login wtf@example.com
