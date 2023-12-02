@@ -1,5 +1,5 @@
 ========
-SSHGuard
+SSHGuard (fork)
 ========
 **sshguard** protects hosts from brute-force attacks against SSH and other
 services. It aggregates system logs and blocks repeat offenders using one of
@@ -8,19 +8,37 @@ several firewall backends.
 - Website: https://www.sshguard.net/
 - Bitbucket: https://bitbucket.org/sshguard/sshguard/
 
+**This is my fork of the original SSHGuard.**
+
+
+My changes
+============
+
+I've added attack signatures for my app server in `Bun <https://bun.sh/>`_:
+
+    [addr] 40[014]{1} [/]?{WORD}.*
+
+So it catches lines like:
+
+    [6.6.6.3] 401 Session
+    [6.6.6.0] 401 /login wtf@example.com
+    [2001:db8::a11:beef:7ac1] 404 /reset/:token
+
+See `<src/parser/tests.txt>`_ for more examples of log lines describing attacks (those with ``999 ...``) and normal events (resulting in ``*``).
+
 
 Installation
 ============
 See `<INSTALL.rst>`_ for dependencies and detailed instructions. Briefly:
 
-If you are building from **Git**, run this first::
+If you are building from this repo, run this first::
 
     autoreconf -i
 
 Then, build it like a normal source distribution::
 
     ./configure
-    make && make install
+    make && make check && make install
 
 
 Usage
