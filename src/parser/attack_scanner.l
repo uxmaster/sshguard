@@ -49,6 +49,8 @@ static int getsyslogpid(char *syslogbanner, int length);
 %s clf_request clf_request_withuser clf_unauhtorized clfwebprobes_botsearch
  /* for git services */
 %s gitea_autherr
+ /* for app services */
+%s app
 
 MONTH       (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)
 MONTHNO     0[0-9]|1[0-2]
@@ -102,6 +104,8 @@ HTTP_SUCCESS    200
 HTTP_REDIRECT   3[0-9]{2}
 HTTP_AUTHFAIL   401
 HTTP_CLIERROR   4[0-9]{2}
+
+APP_BADREQUEST 40[014]{1}
 
  /* Common Log Format. */
 CLF_MISSING        "-"|"\"-\""
@@ -325,6 +329,9 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 
  /* OpenVPN */
 ":"{NUMBER}" TLS Error: TLS handshake failed"                   { return OPENVPN_TLS_ERR_SUFF; }
+
+ /* app */
+"] "{APP_BADREQUEST}" "[/]?{WORD}.*                   { return APP_BADREQUEST_SUFF; }
 
  /* Gitea - also with color codes */
 (({COLOR_CODE})?{TIMESTAMP_YMD_HMS}" "({COLOR_CODE})?)?(({COLOR_CODE})?[a-zA-Z0-9\:\(\)\/\.]*({COLOR_CODE}[^[]*{COLOR_CODE})?" ")?(({COLOR_CODE})?"["[A-Z]"]"({COLOR_CODE})?" ")?("["({COLOR_CODE})?[0-9a-f]*({COLOR_CODE})?"] ")?"Failed authentication attempt for "({COLOR_CODE})?.*({COLOR_CODE})?" from "({COLOR_CODE})?  { BEGIN(gitea_autherr); return GITEA_ERR_PREF; }

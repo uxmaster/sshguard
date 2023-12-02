@@ -116,6 +116,8 @@ static void yyerror(attack_t *, const char *);
 /* OpenVPN Portshare */
 %token OPENVPN_PS_TERM_PREF
 %token OPENVPN_PS_TERM_SUFF
+/* APP */
+%token APP_BADREQUEST_SUFF
 /* MSSQL */
 %token MSSQL_AUTHFAIL_PREF
 
@@ -194,6 +196,7 @@ msg_single:
   | giteamsg          { attack->service = SERVICES_GITEA; }
   | openvpnpsmsg      { attack->service = SERVICES_OPENVPN_PS; }
   | sqlservrmsg       { attack->service = SERVICES_MSSQL; }
+  | appmsg            { attack->service = SERVICES_APP; }
   ;
 
 /* an address */
@@ -383,6 +386,10 @@ openvpnpsmsg:
   | OPENVPN_PS_TERM_PREF '[' addr ']' OPENVPN_PS_TERM_SUFF
   ;
 
+/* attack rules for APP */
+appmsg:
+    '[' addr APP_BADREQUEST_SUFF
+  ;
 %%
 
 static void yyerror(__attribute__((unused)) attack_t *a,

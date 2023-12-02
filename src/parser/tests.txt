@@ -1,3 +1,32 @@
+#### app
+[6.6.6.0] 401 /login wtf@example.com
+999 6.6.6.0 4 10
+M
+[6.6.6.1] 401 /login id_user=4347
+999 6.6.6.1 4 10
+M
+[2001:db8::a11:beef:7ac0] 401 mp
+999 2001:db8::a11:beef:7ac0 6 10
+M
+[2001:db8::a11:beef:7ac1] 404 /reset/:token
+999 2001:db8::a11:beef:7ac1 6 10
+M
+[6.6.6.1] 404 /to/
+999 6.6.6.1 4 10
+M
+[6.6.6.2] 400 /contact
+999 6.6.6.2 4 10
+M
+[6.6.6.3] 401 Session
+999 6.6.6.3 4 10
+M
+[192.168.0.157] 200 /login: id_user=4347
+*
+M
+[192.168.0.157] 307 to signup
+*
+M
+
 #### SSH
 Invalid user inexu from 6.6.6.0
 100 6.6.6.0 4 10
