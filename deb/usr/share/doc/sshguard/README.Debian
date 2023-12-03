@@ -1,0 +1,11 @@
+sshguard for Debian
+------------------
+
+For kfreebsd please add the following lines to /etc/pf.conf
+
+table <sshguard> persist
+block in proto tcp from <sshguard>
+
+Taken from: https://www.sshguard.net/docs/setup/#pf
+
+ -- Julián Moreno Patiño <julian@debian.org>  Mon, 23 Jul 2018 17:22:37 -0500
