@@ -12,7 +12,7 @@ several firewall backends.
 
 
 My changes
-============
+==========
 
 I've added attack signatures for my app server in `Bun <https://bun.sh/>`_::
 
@@ -31,15 +31,19 @@ Installation
 ============
 See `<INSTALL.rst>`_ for dependencies and detailed instructions. Briefly:
 
-If you are building from this repo, run this first::
+Download the source code from this repo, first. Then extract it somwhere and go into the extracted directory (the one which contains README.rst).
 
-    autoreconf -i
+Install build dependencies (assuming Debian/Ubuntu or derivatives)::
 
-Then, build it like a normal source distribution::
+    sudo apt install build-essential debhelper byacc flex 
 
-    ./configure
-    make && make check && make install
+Then build a binary ``deb`` package::
 
+    debuild -i -us -uc -b
+
+Install the package::
+
+    sudo dpkg -i `ls -tra ../uxmaster-sshguard_*.deb | tail -1`
 
 Usage
 =====

@@ -1,13 +1,17 @@
+Source: uxmaster-sshguard
+Section: net
+Priority: optional
+Maintainer: Jacek Stypuła <sshguard@drStypula.pl>
+Standards-Version: 4.6.2
+Build-Depends: autoconf, automake, byacc, flex, gcc, debhelper-compat (= 12)
+
 Package: uxmaster-sshguard
 Version: 2.4.3-1
-Architecture: amd64
-Maintainer: Jacek Stypuła <sshguard@drStypula.pl>
+Architecture: any
 Depends: iptables, lsb-base (>= 3.0-6), libc6 (>= 2.14)
 Provides: sshguard
 Conflicts: sshguard
 Replaces: sshguard
-Section: net
-Priority: optional
 Homepage: https://gitlab.com/uxmaster/sshguard
 Description: Protects from brute force attacks against ssh and other services
  Protects networked hosts from the today's widespread
