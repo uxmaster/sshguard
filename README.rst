@@ -24,14 +24,16 @@ So it catches lines like::
     [6.6.6.0] 401 /login wtf@example.com
     [2001:db8::a11:beef:7ac1] 404 /reset/:token
 
-See `<src/parser/tests.txt>`_ for more examples of log lines describing attacks (those with ``999 ...``) and normal events (resulting in ``*``).
+See `<src/parser/tests.txt>`_ for more examples of log lines describing
+attacks (those with ``999 ...``) and normal events (resulting in ``*``).
 
 
 Installation
 ============
 See `<INSTALL.rst>`_ for dependencies and detailed instructions. Briefly:
 
-Download the source code from this repo, first. Then extract it somwhere and go into the extracted directory (the one which contains README.rst).
+Download the source code from this repo first. Then extract it somewhere
+and go into the extracted directory (the one which contains README.rst).
 
 Install build dependencies (assuming Debian/Ubuntu or derivatives)::
 
@@ -45,12 +47,18 @@ Install the package::
 
     sudo dpkg -i `ls -tra ../uxmaster-sshguard_*.deb | tail -1`
 
+
 Usage
 =====
-Copy the sample configuration file `<examples/sshguard.conf.sample>`_ and
-follow the setup instructions in `sshguard-setup(7)
-<doc/sshguard-setup.7.rst>`_. See `sshguard(8) <doc/sshguard.8.rst>`_ for
-additional options.
+It should just work out of the box (as systemd sshguard.service).
+
+If not, you can always tweak
+``/etc/sshguard/sshguard.conf`` to your needs (see
+`<examples/sshguard.conf.sample>`_ for examples) - follow the setup
+instructions in `sshguard-setup(7) <doc/sshguard-setup.7.rst>`_.
+See `sshguard(8) <doc/sshguard.8.rst>`_ for additional options.
+
+To whitelist some hosts add them to ``/etc/sshguard/whitelist``.
 
 
 Troubleshooting
