@@ -30,7 +30,9 @@ attacks (those with ``999 ...``) and normal events (resulting in ``*``).
 
 Installation
 ============
-See `<INSTALL.rst>`_ for dependencies and detailed instructions. Briefly:
+See `<INSTALL.rst>`_ for detailed instructions.
+
+Briefly:
 
 Download the source code from this repo first. Then extract it somewhere
 and go into the extracted directory (the one which contains README.rst).
@@ -45,7 +47,7 @@ Then build a binary ``deb`` package::
 
 Install the package::
 
-    sudo dpkg -i `ls -tra ../uxmaster-sshguard_*.deb | tail -1`
+    sudo dpkg -i `ls -tr ../uxmaster-sshguard_*.deb | tail -1`
 
 
 Usage
@@ -54,11 +56,13 @@ It should just work out of the box (as systemd sshguard.service).
 
 If not, you can always tweak
 ``/etc/sshguard/sshguard.conf`` to your needs (see
-`<examples/sshguard.conf.sample>`_ for examples) - follow the setup
-instructions in `sshguard-setup(7) <doc/sshguard-setup.7.rst>`_.
-See `sshguard(8) <doc/sshguard.8.rst>`_ for additional options.
+`<examples/sshguard.conf.sample>`_ for examples).
 
 To whitelist some hosts add them to ``/etc/sshguard/whitelist``.
+
+You can find the setup
+instructions in `sshguard-setup(7) <doc/sshguard-setup.7.rst>`_.
+See `sshguard(8) <doc/sshguard.8.rst>`_ for additional options.
 
 
 Troubleshooting
