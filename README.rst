@@ -39,7 +39,7 @@ and go into the extracted directory (the one which contains README.rst).
 
 Install build dependencies (assuming Debian/Ubuntu or derivatives)::
 
-    sudo apt install build-essential debhelper byacc flex 
+    sudo apt install build-essential debhelper devscripts byacc flex 
 
 Then build a binary ``deb`` package::
 
