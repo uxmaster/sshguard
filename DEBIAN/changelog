@@ -1,7 +1,0 @@
-uxmaster-sshguard (2.4.3-1) UNRELEASED; urgency=medium
-
-  * Initial release
-  * Add attack signatures for my app server (bun)
-  * Memory-optimized LOGREADER instead of journalctl
-
- -- uxmaster <sshguard@drStypula.pl>  Sun, 03 Dec 2023 16:59:43 +0100
