@@ -8,10 +8,10 @@
 \.deps/
 \.dirstamp
 \.debhelper
-DEBIAN/autoreconf.*
-DEBIAN/debhelper.*
-DEBIAN/files
-DEBIAN/uxmaster-sshguard
+debian/autoreconf.*
+debian/debhelper.*
+debian/files
+debian/uxmaster-sshguard
 Makefile
 Makefile.in
 aclocal.m4
