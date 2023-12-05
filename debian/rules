@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- --sysconfdir=/etc/sshguard
+
+override_dh_auto_install:
+	$(MAKE) DESTDIR=$$(pwd)/debian/uxmaster-sshguard prefix=/usr install
+	cp -a deb/* debian/uxmaster-sshguard
+
+override_dh_installchangelogs:
+	dh_installchangelogs CHANGELOG.rst

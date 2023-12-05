@@ -1,0 +1,20 @@
+Source: uxmaster-sshguard
+Section: net
+Priority: optional
+Maintainer: Jacek Stypuła <sshguard@drStypula.pl>
+Standards-Version: 4.6.2
+Build-Depends: autoconf, automake, byacc, flex, gcc, debhelper-compat (= 12)
+
+Package: uxmaster-sshguard
+Version: 2.4.3-1
+Architecture: any
+Depends: iptables, lsb-base (>= 3.0-6), libc6 (>= 2.14)
+Provides: sshguard
+Conflicts: sshguard
+Replaces: sshguard
+Homepage: https://gitlab.com/uxmaster/sshguard
+Description: Protects from brute force attacks against ssh and other services
+ Protects networked hosts from the today's widespread
+ brute force attacks against ssh servers. It detects such attacks
+ and blocks the author's address with a firewall rule.
+Original-Maintainer: Julián Moreno Patiño <julian@debian.org>
