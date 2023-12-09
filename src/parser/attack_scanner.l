@@ -51,6 +51,8 @@ static int getsyslogpid(char *syslogbanner, int length);
 %s gitea_autherr
  /* for app services */
 %s app
+ /* for coturn services */
+%s corturn_ssl_shutdown coturn_socket_error
 
 MONTH       (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)
 MONTHNO     0[0-9]|1[0-2]
@@ -106,6 +108,8 @@ HTTP_AUTHFAIL   401
 HTTP_CLIERROR   4[0-9]{2}
 
 APP_BADREQUEST 40[014]{1}
+
+COTURN_SESSION_INFO [0-9]+": ("[0-9]+"): INFO: session "[0-9]{18}": "
 
  /* Common Log Format. */
 CLF_MISSING        "-"|"\"-\""
@@ -332,6 +336,12 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 
  /* app */
 "] "{APP_BADREQUEST}" "[/]?{WORD}.*                   { return APP_BADREQUEST_SUFF; }
+
+ /* coturn */
+{COTURN_SESSION_INFO}"SSL shutdown received, socket to be closed (local "{HOSTADDR}":"{NUMBER}", remote "        { BEGIN(corturn_ssl_shutdown); return COTURN_SSL_SHUTDOWN_PREF; }
+<corturn_ssl_shutdown>":"{NUMBER}")"                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
+{COTURN_SESSION_INFO}"closed (2nd stage), user <> realm <"{HOSTNAME}"> origin <"{HOSTNAME}*">, local "{HOSTADDR}":"{NUMBER}", remote "                                                 { BEGIN(coturn_socket_error); return COTURN_SOCKET_ERROR_PREF; }
+<coturn_socket_error>":"{NUMBER}", reason: TLS/TCP socket buffer operation error (callback)"  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
 
  /* Gitea - also with color codes */
 (({COLOR_CODE})?{TIMESTAMP_YMD_HMS}" "({COLOR_CODE})?)?(({COLOR_CODE})?[a-zA-Z0-9\:\(\)\/\.]*({COLOR_CODE}[^[]*{COLOR_CODE})?" ")?(({COLOR_CODE})?"["[A-Z]"]"({COLOR_CODE})?" ")?("["({COLOR_CODE})?[0-9a-f]*({COLOR_CODE})?"] ")?"Failed authentication attempt for "({COLOR_CODE})?.*({COLOR_CODE})?" from "({COLOR_CODE})?  { BEGIN(gitea_autherr); return GITEA_ERR_PREF; }

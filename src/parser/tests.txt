@@ -27,6 +27,14 @@ M
 *
 M
 
+#### coturn
+Dec  7 10:43:12 node-23154 turnserver: 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local 167.71.177.111:443, remote 145.224.123.172:18602)
+998 145.224.123.172 4 10
+M
+Dec  7 10:43:11 node-23154 turnserver: 3: (962): INFO: session 002000000000000006: closed (2nd stage), user <> realm <sa.link> origin <>, local 167.71.177.111:443, remote 91.102.183.84:15491, reason: TLS/TCP socket buffer operation error (callback)
+998 91.102.183.84 4 10
+M
+
 #### SSH
 Invalid user inexu from 6.6.6.0
 100 6.6.6.0 4 10

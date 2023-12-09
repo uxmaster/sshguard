@@ -118,6 +118,8 @@ static void yyerror(attack_t *, const char *);
 %token OPENVPN_PS_TERM_SUFF
 /* APP */
 %token APP_BADREQUEST_SUFF
+/* coturn */
+%token COTURN_SSL_SHUTDOWN_PREF COTURN_SSL_SHUTDOWN_SUFF COTURN_SOCKET_ERROR_PREF COTURN_SOCKET_ERROR_SUFF
 /* MSSQL */
 %token MSSQL_AUTHFAIL_PREF
 
@@ -197,6 +199,7 @@ msg_single:
   | openvpnpsmsg      { attack->service = SERVICES_OPENVPN_PS; }
   | sqlservrmsg       { attack->service = SERVICES_MSSQL; }
   | appmsg            { attack->service = SERVICES_APP; }
+  | coturnmsg         { attack->service = SERVICES_COTURN; }
   ;
 
 /* an address */
@@ -389,6 +392,12 @@ openvpnpsmsg:
 /* attack rules for APP */
 appmsg:
     '[' addr APP_BADREQUEST_SUFF
+  ;
+
+/* attack rules for coturn */
+coturnmsg:
+    COTURN_SSL_SHUTDOWN_PREF addr COTURN_SSL_SHUTDOWN_SUFF
+  | COTURN_SOCKET_ERROR_PREF addr COTURN_SOCKET_ERROR_SUFF
   ;
 %%
 
