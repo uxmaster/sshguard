@@ -49,8 +49,6 @@ static int getsyslogpid(char *syslogbanner, int length);
 %s clf_request clf_request_withuser clf_unauhtorized clfwebprobes_botsearch
  /* for git services */
 %s gitea_autherr
- /* for app services */
-%s app
  /* for coturn services */
 %s corturn_ssl_shutdown coturn_socket_error
 
