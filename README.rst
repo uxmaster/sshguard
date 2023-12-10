@@ -27,6 +27,10 @@ So it catches lines like::
 See `<src/parser/tests.txt>`_ for more examples of log lines describing
 attacks (those with ``999 ...``) and normal events (resulting in ``*``).
 
+I've also added attack signatures for `coturn <https://github.com/coturn/coturn>`_.
+
+For all the changes, consult `<debian/changelog>`_.
+
 
 Installation
 ============

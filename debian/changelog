@@ -1,4 +1,10 @@
-uxmaster-sshguard (2.4.3-1) UNRELEASED; urgency=medium
+uxmaster-sshguard (2.4.3-2) unstable; urgency=medium
+
+  * Add attack signatures for coturn
+
+ -- Jacek <sshguard@drStypula.pl>  Sun, 10 Dec 2023 11:25:22 +0100
+
+uxmaster-sshguard (2.4.3-1) unstable; urgency=medium
 
   * Initial release
   * Add attack signatures for my app server (bun)
