@@ -1,3 +1,9 @@
+uxmaster-sshguard (2.4.3-3~rc0) UNRELEASED; urgency=medium
+
+  * conf: add turnserver to LOGREADER filter
+
+ -- Jacek <sshguard@drStypula.pl>  Sun, 10 Dec 2023 11:47:48 +0100
+
 uxmaster-sshguard (2.4.3-2) unstable; urgency=medium
 
   * Add attack signatures for coturn
