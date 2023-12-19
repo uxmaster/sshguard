@@ -6,10 +6,10 @@ Before=sshd.service
 
 [Service]
 PIDFile=/run/sshguard.pid
-ExecStartPre=-/sbin/iptables -N sshguard
-ExecStartPre=-/sbin/ip6tables -N sshguard
-ExecStopPost=-/sbin/iptables -X sshguard
-ExecStopPost=-/sbin/ip6tables -X sshguard
+ExecStartPre=/usr/sbin/iptables -N sshguard
+ExecStartPre=/usr/sbin/ip6tables -N sshguard
+ExecStopPost=/usr/sbin/iptables -X sshguard
+ExecStopPost=/usr/sbin/ip6tables -X sshguard
 ExecStart=/usr/sbin/sshguard
 
 [Install]
