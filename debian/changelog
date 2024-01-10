@@ -1,9 +1,9 @@
-uxmaster-sshguard (2.4.3-3~rc0) UNRELEASED; urgency=medium
+uxmaster-sshguard (2.4.3-3) unstable; urgency=medium
 
   * conf: add turnserver to LOGREADER filter
   * fix https://bugs.launchpad.net/ubuntu/+source/sshguard/+bug/1884848
 
- -- Jacek <sshguard@drStypula.pl>  Sun, 10 Dec 2023 11:47:48 +0100
+ -- Jacek <sshguard@drStypula.pl>  Wed, 10 Jan 2024 16:49:51 +0100
 
 uxmaster-sshguard (2.4.3-2) unstable; urgency=medium
 
