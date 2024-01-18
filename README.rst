@@ -45,7 +45,7 @@ Install build dependencies (assuming Debian/Ubuntu or derivatives)::
 
     sudo apt install build-essential debhelper devscripts byacc flex 
 
-From version 2.4.3-3 of sshguard the required version of ``byacc`` is
+From version 2.4.3-2 of sshguard the required version of ``byacc`` is
 ``1:2.0.20220114-1`` or later which is provided by Debian bookworm
 (stable) and Ubuntu 22.04 (jammy).
 
