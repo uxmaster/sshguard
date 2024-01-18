@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Jacek Stypuła <sshguard@drStypula.pl>
 Standards-Version: 4.6.2
-Build-Depends: autoconf, automake, byacc, flex, gcc, debhelper-compat (= 12)
+Build-Depends: autoconf, automake, byacc (>= 1:2.0.20220114-1), flex, gcc, debhelper-compat (= 12)
 
 Package: uxmaster-sshguard
 Version: 2.4.3-1
