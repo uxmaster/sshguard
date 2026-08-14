@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env /lib/runit/invoke-run
 set -e
 
 exec 2>&1

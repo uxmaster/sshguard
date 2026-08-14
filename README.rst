@@ -60,9 +60,14 @@ Install the package::
 
 Usage
 =====
-It should start out of the box using the active Devuan init system. SysV init
-and runit are supported. Under runit, the dedicated logger writes to
-``/var/log/runit/sshguard``.
+It should start out of the box with SysV init or runit-init. With runit-run
+under SysV init, switching SSHGuard to runit supervision is an explicit
+administrator choice::
+
+    service sshguard stop
+    update-service --add /etc/sv/sshguard
+
+Under runit, the dedicated logger writes to ``/var/log/runit/sshguard``.
 
 If not, you can always tweak
 ``/etc/sshguard/sshguard.conf`` to your needs (see

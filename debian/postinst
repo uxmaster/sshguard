@@ -1,19 +1,13 @@
 #!/bin/sh
 set -e
 
-is_runit() {
-    [ -r /proc/1/comm ] && [ "$(cat /proc/1/comm)" = runit ]
+is_runit_init() {
+    [ -e /run/runit.stopit ]
 }
 
 case "$1" in
     configure|abort-upgrade|abort-deconfigure|abort-remove)
-        if is_runit; then
-            # When migrating an older SysV-managed installation to runit,
-            # stop its PID-file process before registering the native service.
-            if [ -n "${2:-}" ] && [ -s /run/sshguard.pid ]; then
-                start-stop-daemon --stop --quiet --oknodo --retry 30 \
-                    --pidfile /run/sshguard.pid
-            fi
+        if is_runit_init; then
             install -d -m 0750 -o _runit-log -g adm \
                 /var/log/runit/sshguard
             if [ ! -e /etc/service/sshguard ] && \
