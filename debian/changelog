@@ -4,6 +4,7 @@ uxmaster-sshguard (2.4.3-4) unstable; urgency=medium
     default init system.
   * Keep runit-run supervision opt-in when SysV remains PID 1.
   * Add a dedicated svlogd logger owned by _runit-log:adm.
+  * Generate the manual pages from their reStructuredText sources.
 
  -- Jacek <sshguard@drStypula.pl>  Sat, 18 Jul 2026 20:20:00 +0200
 
