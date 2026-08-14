@@ -1,3 +1,11 @@
+uxmaster-sshguard (2.4.3-5) unstable; urgency=medium
+
+  * Let debhelper manage the SysV service lifecycle through invoke-rc.d so
+    runit-init can dispatch the same package actions to sv.
+  * Mark Original-Maintainer as a source/binary/changes custom field.
+
+ -- Jacek <sshguard@drStypula.pl>  Fri, 14 Aug 2026 15:49:37 +0200
+
 uxmaster-sshguard (2.4.3-4) unstable; urgency=medium
 
   * Add runit supervision while retaining the SysV service for Devuan's

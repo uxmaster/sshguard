@@ -12,5 +12,8 @@ override_dh_auto_install:
 	$(MAKE) DESTDIR=$$(pwd)/debian/uxmaster-sshguard prefix=/usr install
 	cp -a deb/* debian/uxmaster-sshguard
 
+override_dh_installinit:
+	dh_installinit --name=sshguard
+
 override_dh_installchangelogs:
 	dh_installchangelogs CHANGELOG.rst

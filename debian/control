@@ -2,7 +2,7 @@ Source: uxmaster-sshguard
 Section: net
 Priority: optional
 Maintainer: Jacek Stypuła <sshguard@drStypula.pl>
-Original-Maintainer: Julián Moreno Patiño <julian@debian.org>
+XSBC-Original-Maintainer: Julián Moreno Patiño <julian@debian.org>
 Standards-Version: 4.6.2
 Build-Depends: autoconf, automake, byacc (>= 1:2.0.20220114-1), flex, gcc, python3-docutils, debhelper-compat (= 12)
 

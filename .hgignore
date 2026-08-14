@@ -11,7 +11,7 @@
 debian/autoreconf.*
 debian/debhelper.*
 debian/files
-debian/uxmaster-sshguard
+^debian/uxmaster-sshguard/$
 Makefile
 Makefile.in
 aclocal.m4
