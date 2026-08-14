@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+logdir=/var/log/runit/sshguard
+install -d -m 0750 -o _runit-log -g adm "$logdir"
+exec chpst -u _runit-log svlogd -tt "$logdir"

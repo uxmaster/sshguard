@@ -1,32 +1,29 @@
 #!/bin/sh
 set -e
-# Automatically added by dh_installinit/12.10ubuntu1
-if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
-	if [ -x "/etc/init.d/sshguard" ]; then
-		update-rc.d sshguard defaults >/dev/null
-		if [ -n "$2" ]; then
-			_dh_action=restart
-		else
-			_dh_action=start
-		fi
-		invoke-rc.d sshguard $_dh_action || exit 1
-	fi
-fi
-# End automatically added section
-# Automatically added by dh_installsystemd/12.10ubuntu1
-if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
-	# This will only remove masks created by d-s-h on package removal.
-	deb-systemd-helper unmask 'sshguard.service' >/dev/null || true
 
-	# was-enabled defaults to true, so new installations run enable.
-	if deb-systemd-helper --quiet was-enabled 'sshguard.service'; then
-		# Enables the unit on first installation, creates new
-		# symlinks on upgrades if the unit file has changed.
-		deb-systemd-helper enable 'sshguard.service' >/dev/null || true
-	else
-		# Update the statefile to add new symlinks (if any), which need to be
-		# cleaned up on purge. Also remove old symlinks.
-		deb-systemd-helper update-state 'sshguard.service' >/dev/null || true
-	fi
-fi
-# End automatically added section
+is_runit() {
+    [ -r /proc/1/comm ] && [ "$(cat /proc/1/comm)" = runit ]
+}
+
+case "$1" in
+    configure|abort-upgrade|abort-deconfigure|abort-remove)
+        if is_runit; then
+            # When migrating an older SysV-managed installation to runit,
+            # stop its PID-file process before registering the native service.
+            if [ -n "${2:-}" ] && [ -s /run/sshguard.pid ]; then
+                start-stop-daemon --stop --quiet --oknodo --retry 30 \
+                    --pidfile /run/sshguard.pid
+            fi
+            install -d -m 0750 -o _runit-log -g adm \
+                /var/log/runit/sshguard
+            if [ ! -e /etc/service/sshguard ] && \
+                    [ ! -e /etc/service/.sshguard ]; then
+                /usr/sbin/update-service --add /etc/sv/sshguard >/dev/null
+            fi
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

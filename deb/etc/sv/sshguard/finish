@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/usr/sbin/iptables -X sshguard >/dev/null 2>&1 || true
+/usr/sbin/ip6tables -X sshguard >/dev/null 2>&1 || true
+exit 0

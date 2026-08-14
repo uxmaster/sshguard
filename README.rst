@@ -60,7 +60,9 @@ Install the package::
 
 Usage
 =====
-It should just work out of the box (as systemd sshguard.service).
+It should start out of the box using the active Devuan init system. SysV init
+and runit are supported. Under runit, the dedicated logger writes to
+``/var/log/runit/sshguard``.
 
 If not, you can always tweak
 ``/etc/sshguard/sshguard.conf`` to your needs (see

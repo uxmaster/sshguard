@@ -1,3 +1,11 @@
+uxmaster-sshguard (2.4.3-4) unstable; urgency=medium
+
+  * Add runit supervision while retaining the SysV service for Devuan's
+    default init system.
+  * Add a dedicated svlogd logger owned by _runit-log:adm.
+
+ -- Jacek <sshguard@drStypula.pl>  Sat, 18 Jul 2026 20:20:00 +0200
+
 uxmaster-sshguard (2.4.3-3) unstable; urgency=medium
 
   * conf: add turnserver to LOGREADER filter
