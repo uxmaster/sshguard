@@ -68,7 +68,7 @@ administrator choice::
 
 Under runit, the dedicated logger writes to ``/var/log/runit/sshguard``.
 
-If not, you can always tweak
+You can always tweak
 ``/etc/sshguard/sshguard.conf`` to your needs (see
 `<examples/sshguard.conf.sample>`_ for examples).
 
