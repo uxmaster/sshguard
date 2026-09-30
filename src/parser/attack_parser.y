@@ -27,7 +27,7 @@
 #define DEFAULT_ATTACKS_DANGEROUSNESS           10
 
  /* stuff exported by the scanner */
-extern void scanner_init();
+extern void scanner_init(char *);
 extern void scanner_fin();
 extern int yylex();
 
@@ -46,14 +46,12 @@ static void yyerror(attack_t *, const char *);
 }
 
 /* semantic values for tokens */
-%token <str> IPv4 IPv6 HOSTADDR WORD
-%token <num> INTEGER SYSLOG_BANNER_PID SOCKLOG_BANNER_PID BUSYBOX_SYSLOG_BANNER_PID
+%token <str> IPv4 IPv6 HOSTADDR WORD STRING
+%token <num> INTEGER
 
 /* flat tokens */
-%token SYSLOG_BANNER TIMESTAMP_SYSLOG TIMESTAMP_ISO8601 TIMESTAMP_TAI64 AT_TIMESTAMP_TAI64 RFC_5234_BANNER METALOG_BANNER SOCKLOG_BANNER
+%token SYSLOG_BANNER TIMESTAMP_SYSLOG TIMESTAMP_ISO8601 TIMESTAMP_TAI64 AT_TIMESTAMP_TAI64 RFC_5234_BANNER METALOG_BANNER SOCKLOG_BANNER BUSYBOX_SYSLOG_BANNER 
 %token REPETITIONS
-%token HTTP_REQUEST HTTP_VERSION HTTP_REDIRECT HTTP_AUTHFAIL HTTP_CLIERROR
-%token HTTP_BOTSEARCH_WEBMAIL HTTP_BOTSEARCH_PHPMYADMIN HTTP_BOTSEARCH_WORDPRESS HTTP_BOTSEARCH_JOOMLA HTTP_BOTSEARCH
 /* ssh */
 %token SSH_INVALUSERPREF SSH_NOTALLOWEDPREF SSH_NOTALLOWEDSUFF
 %token SSH_LOGINERR_PREF SSH_LOGINERR_PAM
@@ -61,8 +59,14 @@ static void yyerror(attack_t *, const char *);
 %token SSH_MAXAUTH
 %token SSH_ADDR_SUFF
 %token SSH_NOIDENTIFSTR SSH_BADPROTOCOLIDENTIF SSH_BADPROTOCOLIDENTIF_SUFF
+%token SSH_INVALIDFORMAT_PREF SSH_INVALIDFORMAT_SUFF
 %token SSH_BADKEX_PREF SSH_BADKEX_SUFF
 %token SSH_DISCONNECT_PREF SSH_CONNECTION_CLOSED SSH_PREAUTH_SUFF
+%token SSH_PREAUTH_TIMEOUT
+/* dropbear */
+%token DROPBEAR_BAD_PASSWORD
+%token DROPBEAR_BAD_USER
+%token DROPBEAR_EXIT_BEFORE_AUTH_PREF DROPBEAR_EXIT_BEFORE_AUTH_SUFF
 /* SSHGuard */
 %token SSHGUARD_ATTACK_PREF SSHGUARD_ATTACK_SUFF
 %token SSHGUARD_BLOCK_PREF SSHGUARD_BLOCK_SUFF
@@ -70,6 +74,7 @@ static void yyerror(attack_t *, const char *);
 %token BIND_PREF BIND_QUERY_DENIED
 /* dovecot */
 %token DOVECOT_IMAP_LOGINERR_PREF DOVECOT_IMAP_LOGINERR_SUFF
+%token DOVECOT_IMAP_LOGINERR_PAM
 /* uwimap */
 %token UWIMAP_LOGINERR
 /* cyrus-imap */
@@ -97,14 +102,11 @@ static void yyerror(attack_t *, const char *);
 %token VSFTPD_LOGINERR_PREF VSFTPD_LOGINERR_SUFF
 /* cockpit */
 %token COCKPIT_AUTHFAIL_PREF COCKPIT_AUTHFAIL_SUFF
-/* CLF request */
-%token CLF_REQUEST_PREF
-/* CLF, unauhtorized */
-%token CLF_UNAUTHOIRIZED_PREF CLF_UNAUTHOIRIZED_SUFF
+%token CLF_TIMESTAMP CLF_SUFFIX
 /* CLF, common webapp probes */
-%token CLFWEBPROBES_BOTSEARCH_SUFF
+%token CLF_WEB_PROBE
 /* CLF, common CMS frameworks brute-force attacks */
-%token CLF_LOGIN_URL_SUFF
+%token CLF_CMS_LOGIN
 /* OpenSMTPD */
 %token OPENSMTPD_FAILED_CMD_PREF OPENSMTPD_AUTHFAIL_SUFF OPENSMTPD_UNSUPPORTED_CMD_SUFF
 /* courier */
@@ -113,6 +115,8 @@ static void yyerror(attack_t *, const char *);
 %token OPENVPN_TLS_ERR_SUFF
 /* Gitea */
 %token GITEA_ERR_PREF GITEA_ERR_SUFF
+/* pfSense web configurator authentication failures */
+%token PFSENSE_AUTH_FAIL
 /* OpenVPN Portshare */
 %token OPENVPN_PS_TERM_PREF
 %token OPENVPN_PS_TERM_SUFF
@@ -122,6 +126,10 @@ static void yyerror(attack_t *, const char *);
 %token COTURN_SSL_SHUTDOWN_PREF COTURN_SSL_SHUTDOWN_SUFF COTURN_SOCKET_ERROR_PREF COTURN_SOCKET_ERROR_SUFF
 /* MSSQL */
 %token MSSQL_AUTHFAIL_PREF
+/* MySQL */
+%token MYSQL_PREF MYSQL_ACCESS_DENIED_PREF MYSQL_ACCESS_DENIED_SUFF
+/* Proxmox VE */
+%token PROXMOXVE_AUTHFAIL_PREF PROXMOXVE_AUTHFAIL_SUFF
 
 %%
 
@@ -143,7 +151,6 @@ log_prefix:
 /* a syslog-generated log entry */
 syslogent:
     SYSLOG_BANNER
-  | SYSLOG_BANNER_PID      /* timestamp hostname procname[pid]: logmsg */
   | TIMESTAMP_ISO8601      /* some have different timestamps */
   | TIMESTAMP_ISO8601 WORD /* handle different timestamp with proc name */
   ;
@@ -158,15 +165,10 @@ metalogent:
   ;
 
 /* a socklog-generated log entry */
-socklogent:
-    SOCKLOG_BANNER
-  | SOCKLOG_BANNER_PID
-  ;
+socklogent: SOCKLOG_BANNER
 
 /* a busybox syslog log entry */
-busyboxent:
-    BUSYBOX_SYSLOG_BANNER_PID
-  ;
+busyboxent: BUSYBOX_SYSLOG_BANNER
 
 repetition_suffix:
     /* epsilon */
@@ -175,6 +177,7 @@ repetition_suffix:
 
 msg_single:
     sshmsg            { attack->service = SERVICES_SSH; }
+  | dropbearmsg       { attack->service = SERVICES_DROPBEAR; }
   | sshguardmsg       { attack->service = SERVICES_SSHGUARD; }
   | bindmsg           { attack->service = SERVICES_BIND; }
   | dovecotmsg        { attack->service = SERVICES_DOVECOT; }
@@ -189,17 +192,17 @@ msg_single:
   | pureftpdmsg       { attack->service = SERVICES_PUREFTPD; }
   | vsftpdmsg         { attack->service = SERVICES_VSFTPD; }
   | cockpitmsg        { attack->service = SERVICES_COCKPIT; }
-  | clfunauhtdmsg     { attack->service = SERVICES_CLF_UNAUTH; }
-  | clfwebprobesmsg   { attack->service = SERVICES_CLF_PROBES; }
-  | clfcmsmsg         { attack->service = SERVICES_CLF_LOGIN_URL; }
+  | clfmsg
   | opensmtpdmsg      { attack->service = SERVICES_OPENSMTPD; }
   | couriermsg        { attack->service = SERVICES_COURIER; }
   | openvpnmsg        { attack->service = SERVICES_OPENVPN; }
   | giteamsg          { attack->service = SERVICES_GITEA; }
+  | pfsenseauthfail   { attack->service = SERVICES_PFSENSE; }
   | openvpnpsmsg      { attack->service = SERVICES_OPENVPN_PS; }
-  | sqlservrmsg       { attack->service = SERVICES_MSSQL; }
+  | sqlservrmsg
   | appmsg            { attack->service = SERVICES_APP; }
   | coturnmsg         { attack->service = SERVICES_COTURN; }
+  | proxmoxvemsg      { attack->service = SERVICES_PROXMOXVE; }
   ;
 
 /* an address */
@@ -209,10 +212,6 @@ addr:
                         strcpy(attack->address.value, $1);
                     }
   | IPv6            {
-                        attack->address.kind = ADDRKIND_IPv6;
-                        strcpy(attack->address.value, $1);
-                    }
-  | IPv6 '%' WORD   {   /* IPv6 address with interface name */
                         attack->address.kind = ADDRKIND_IPv6;
                         strcpy(attack->address.value, $1);
                     }
@@ -231,7 +230,9 @@ sshmsg:
   | ssh_authfail
   | ssh_noidentifstring
   | ssh_badprotocol
+  | ssh_invalid_format
   | ssh_badkex
+  | ssh_timeout { attack->dangerousness = 1; }
   ;
 
 ssh_illegaluser:
@@ -260,9 +261,22 @@ ssh_badprotocol:
     SSH_BADPROTOCOLIDENTIF addr SSH_BADPROTOCOLIDENTIF_SUFF
   ;
 
+ssh_invalid_format:
+    SSH_INVALIDFORMAT_PREF addr SSH_INVALIDFORMAT_SUFF
+  ;
+
 ssh_badkex:
     SSH_BADKEX_PREF addr SSH_BADKEX_SUFF
   ;
+
+ssh_timeout:
+    SSH_PREAUTH_TIMEOUT addr SSH_PREAUTH_SUFF;
+
+dropbearmsg:
+    DROPBEAR_BAD_PASSWORD addr ':' INTEGER
+  | DROPBEAR_BAD_USER addr ':' INTEGER
+  | DROPBEAR_EXIT_BEFORE_AUTH_PREF addr ':' INTEGER DROPBEAR_EXIT_BEFORE_AUTH_SUFF { attack->dangerousness = 2; }
+ ;
 
 /* attacks and blocks from SSHGuard */
 sshguardmsg:
@@ -277,6 +291,7 @@ bindmsg:
 /* attack rules for dovecot imap */
 dovecotmsg:
     DOVECOT_IMAP_LOGINERR_PREF addr DOVECOT_IMAP_LOGINERR_SUFF
+  | DOVECOT_IMAP_LOGINERR_PAM addr
   ;
 
 /* attack rules for UWIMAP */
@@ -305,12 +320,16 @@ sendmailmsg:
  ;
 
 postfixmsg:
-    POSTFIX_SASL_LOGINERR_PREF addr POSTFIX_SASL_LOGINERR_SUFF
-  | POSTFIX_NO_AUTH_PREF addr ']'
+    POSTFIX_SASL_LOGINERR_PREF postfixsrc POSTFIX_SASL_LOGINERR_SUFF
+  | POSTFIX_NO_AUTH_PREF postfixsrc
   | POSTFIX_GREYLIST addr POSTFIX_GREYLIST_SUFF
-  | POSTFIX_NONSMTP addr POSTFIX_NONSMTP_SUFF
-  | POSTSCREEN_PREF addr POSTSCREEN_SUFF
+  | POSTFIX_NONSMTP postfixsrc POSTFIX_NONSMTP_SUFF
+  | POSTSCREEN_PREF postfixsrc POSTSCREEN_SUFF
   ;
+
+postfixsrc: addr ']' optport
+
+optport: /* empty */ | ':' INTEGER
 
 /* attack rules for FreeBSD's ftpd */
 freebsdftpdmsg:
@@ -338,20 +357,50 @@ cockpitmsg:
   | COCKPIT_AUTHFAIL_PREF addr
   ;
 
-/* attack rules for HTTP 401 Unauhtorized in common log format */
-clfunauhtdmsg:
-    addr CLF_UNAUTHOIRIZED_PREF CLF_UNAUTHOIRIZED_SUFF
+/** CLF {{{
+ * Handle logs in Common Log Format. These logs take the form of:
+ *   host rfc931 username date:time request statuscode bytes [referrer [user_agent [cookies]]]
+ * Additionally, we support an unlimited number of extra fields.
+ */
+clfmsg: addr clffield clffield CLF_TIMESTAMP clfrequest clfstatus clfbytes clfext clfsuffix;
+
+clfext: /*empty*/ | clffield clfext // optional extra fields
+
+clfsuffix: /*empty*/ | CLF_SUFFIX;
+
+clffield: STRING | WORD | '-';
+
+clfrequest:
+  CLF_WEB_PROBE { attack->service = SERVICES_CLF_PROBES; }
+  | CLF_CMS_LOGIN { attack->service = SERVICES_CLF_LOGIN_URL; }
+  | STRING // in case we didn't match any known attacks
   ;
 
-/* attack rules for probes for common web services */
-clfwebprobesmsg:
-    addr CLF_REQUEST_PREF CLFWEBPROBES_BOTSEARCH_SUFF
-  ;
+clfstatus: INTEGER {
+    if (yylval.num == 401) {
+        attack->service = SERVICES_CLF_UNAUTH;
+    } else if (attack->service == SERVICES_CLF_LOGIN_URL) {
+        // HTTP 200 OK responses via POST are failed requests
+        if (yylval.num != 200) {
+            attack->service = -1;
+        }
+    } else if (attack->service == SERVICES_CLF_PROBES) {
+        // Probes with good status codes aren't probes, just legitimate requests
+        if (yylval.num < 400) {
+            attack->service = -1;
+            break;
+        }
+    } else if (yylval.num == 444) {
+        // Some admins configure their web servers to return special status
+        // codes when they receive requests for spammy/proby paths. See
+        // https://bitbucket.org/sshguard/sshguard/issues/157
+        attack->service = SERVICES_CLF_PROBES;
+    }
+};
 
-/* attack rules against common CMS frameworks */
-clfcmsmsg:
-    addr CLF_REQUEST_PREF CLF_LOGIN_URL_SUFF
-  ;
+clfbytes: INTEGER | clffield;
+
+// }}}
 
 /* opensmtpd */
 opensmtpdmsg:
@@ -378,9 +427,15 @@ giteamsg:
   | GITEA_ERR_PREF '[' addr ']' GITEA_ERR_SUFF
   ;
 
+/* attack rules against pfSense */
+pfsenseauthfail:
+    PFSENSE_AUTH_FAIL addr
+  ;
+
 /* attack rules for mssql */
 sqlservrmsg:
-    MSSQL_AUTHFAIL_PREF addr ']' 
+    MSSQL_AUTHFAIL_PREF addr ']' { attack->service = SERVICES_MSSQL; }
+  | INTEGER MYSQL_PREF MYSQL_ACCESS_DENIED_PREF addr MYSQL_ACCESS_DENIED_SUFF { attack->service = SERVICES_MYSQL; }
   ;
 
 /* attack rules for openvpn portshare */
@@ -401,19 +456,25 @@ coturnmsg:
   | COTURN_SOCKET_ERROR_PREF addr COTURN_SOCKET_ERROR_SUFF
   | COTURN_SOCKET_ERROR_PREF '[' addr ']' COTURN_SOCKET_ERROR_SUFF
   ;
+ /* attack rules for Proxmox VE */
+proxmoxvemsg:
+    PROXMOXVE_AUTHFAIL_PREF addr PROXMOXVE_AUTHFAIL_SUFF
+  ;
+
 %%
 
 static void yyerror(__attribute__((unused)) attack_t *a,
     __attribute__((unused)) const char *s) { /* do nothing */ }
 
 int parse_line(char *str, attack_t *attack) {
-
-    /* TODO: reduce danger for SERVICES_CLF_PROBES */
+    attack->service = -1; // invalid service
     attack->dangerousness = DEFAULT_ATTACKS_DANGEROUSNESS;
 
     scanner_init(str);
     int ret = yyparse(attack);
     scanner_fin();
+    if (attack->service == -1)
+        return 1; // successful parse but no service (e.g. successful CLF)
 
     return ret;
 }

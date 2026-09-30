@@ -20,10 +20,10 @@ sshguard
 block brute-force attacks by aggregating system logs
 ----------------------------------------------------
 
-:Date: March 16, 2021
+:Date: January 1, 2025
 :Manual group: SSHGuard Manual
 :Manual section: 8
-:Version: 2.4
+:Version: 2.5.1
 
 SYNOPSIS
 ========
@@ -31,6 +31,7 @@ SYNOPSIS
 [**-a** *threshold*]
 [**-b** *threshold*:*blacklist_file*]
 [**-i** *pidfile*]
+[**-m** *block_time_multiplier*]
 [**-p** *blocktime*]
 [**-s** *detection_time*]
 [**-w** *address* | *whitelist_file*]
@@ -66,10 +67,15 @@ OPTIONS
     Write the PID of **sshguard** to *pidfile*. *pidfile* is removed when
     **sshguard** exits.
 
+**-m** *block_time_multiplier* (default 2)
+    For repeat attackers, multiply *blocktime* by *block_time_multiplier* for
+    each subsequent block.
+
 **-p** *blocktime* (default 120)
     Block first-time attackers for *blocktime* seconds. Subsequent blocks
-    increase in duration by a factor of 1.5. Since **sshguard** unblocks
-    attackers at random intervals, actual block times may be somewhat longer.
+    increase in duration by a configurable factor (see the **-m** option).
+    Since **sshguard** unblocks attackers at random intervals, actual block times
+    may be somewhat longer.
 
 **-s** *detection_time* (default 1800)
     Reset an attacker's attack score after *detection_time* seconds since the
@@ -91,8 +97,18 @@ OPTIONS
 
 ENVIRONMENT
 ===========
+SSHGUARD_USER
+    When set, sandboxed processes drop permissions by changing to this user.
+    Normally set and overridden in *sshguard.conf* using the SSHGUARD_USER
+    variable.
+
 SSHGUARD_DEBUG
     Set to enable verbose output from **sshg-blocker**.
+
+SSHGUARD_STATS_DIR
+    When set, write Prometheus-compatible statistics to .prom files in this
+    directory every minute. The STATS_DIR variable in *sshguard.conf* will set
+    and override this environment variable.
 
 FILES
 =====

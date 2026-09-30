@@ -9,10 +9,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "metrics.h"
 #include "parser.h"
 #include "sandbox.h"
 
-#define MAX_LEN 1000
+#define MAX_LEN 4096
 
 unsigned int test_counter = 0;
 
@@ -37,7 +38,7 @@ static void print_usage() {
     fprintf(stderr, "usage: sshg-parser [-adht]\n");
 }
 
-static void test_next_line(char buf[static MAX_LEN]) {
+static void test_next_line(char buf[static MAX_LEN], unsigned int lineno) {
     static unsigned char state = 0;
     static char expected[MAX_LEN], result[MAX_LEN];
     static bool match;
@@ -70,7 +71,7 @@ static void test_next_line(char buf[static MAX_LEN]) {
                     if (match) {
                         putchar('\n');
                     } else {
-                        printf(" # actual: %s", result);
+                        printf(" # %u: actual: %s", lineno, result);
                     }
                     break;
                 case 'X': // expected fail
@@ -93,6 +94,8 @@ int main(int argc, char *argv[]) {
     char buf[MAX_LEN];
     int flag;
 
+    init_log();
+    metrics_init("parser");
     sandbox_init();
 
     while ((flag = getopt(argc, argv, "adht")) != -1) {
@@ -117,12 +120,24 @@ int main(int argc, char *argv[]) {
 
     yydebug = yy_flex_debug = debug;
 
+    // Number of input lines read. Used to report line number in test mode,
+    // otherwise serves as a counter for total number of logs ingested.
+    unsigned int lineno = 0;
+
+    unsigned int attacks_total = 0;
+    unsigned int danger_total = 0;
     while (fgets(buf, sizeof(buf), stdin) != NULL) {
+        lineno++;
         if (test_mode) {
-            test_next_line(buf);
+            test_next_line(buf, lineno);
         } else {
             attack_t attack;
             bool is_attack = !parse_line(buf, &attack);
+            if (is_attack) {
+                attacks_total++;
+                danger_total += attack.dangerousness;
+            }
+
             if (annotate) {
                 if (is_attack) {
                     fputs("* ", stdout);
@@ -137,6 +152,12 @@ int main(int argc, char *argv[]) {
                     fflush(stdout);
                 }
             }
+        }
+        if (metrics_begin()) {
+            metrics_write("logs_read_total", lineno);
+            metrics_write("attacks_total", attacks_total);
+            metrics_write("danger_total", danger_total);
+            metrics_fin();
         }
     }
 

@@ -7,6 +7,7 @@ struct service_s {
 
 static const struct service_s services[] = {
     {SERVICES_SSH, "SSH"},
+    {SERVICES_DROPBEAR, "Dropbear"},
     {SERVICES_SSHGUARD, "SSHGuard"},
     {SERVICES_UWIMAP, "UW IMAP"},
     {SERVICES_DOVECOT, "Dovecot"},
@@ -30,7 +31,9 @@ static const struct service_s services[] = {
     {SERVICES_OPENVPN_PS, "OpenVPN Portshare"},
     {SERVICES_MSSQL, "MSSQL"},
     {SERVICES_APP, "app"},
-    {SERVICES_COTURN, "coturn"}
+    {SERVICES_COTURN, "coturn"},
+    {SERVICES_MYSQL, "MYSQL"},
+    {SERVICES_PROXMOXVE, "Proxmox VE"},
 };
 
 const char *service_to_name(enum service code) {

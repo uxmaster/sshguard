@@ -27,6 +27,7 @@
 enum service {
     SERVICES_ALL            = 0,    //< anything
     SERVICES_SSH            = 100,  //< ssh
+    SERVICES_DROPBEAR       = 101,  //< Dropbear SSH
     SERVICES_SSHGUARD       = 110,  //< SSHGuard
     SERVICES_BIND           = 120,  //< BIND (named)
     SERVICES_UWIMAP         = 200,  //< UWimap for imap and pop daemon
@@ -46,12 +47,15 @@ enum service {
     SERVICES_CLF_UNAUTH     = 350,  //< HTTP 401 in common log format
     SERVICES_CLF_PROBES     = 360,  //< probes for common web services
     SERVICES_CLF_LOGIN_URL  = 370,  //< CMS framework logins in common log format
+    SERVICES_PFSENSE        = 380,  //< pfSense web configurator
     SERVICES_OPENVPN        = 400,  //< OpenVPN
     SERVICES_OPENVPN_PS     = 410,  //< OpenVPN Portshare
     SERVICES_GITEA          = 500,  //< Gitea
     SERVICES_MSSQL          = 600,  //< Microsoft SQL Server for Linux
     SERVICES_COTURN         = 998,  //< coturn
     SERVICES_APP            = 999,  //< app server (bun)
+    SERVICES_MYSQL          = 601,  //< MySQL
+    SERVICES_PROXMOXVE      = 700,  //< Proxmox VE
 };
 
 /* an attack (source address & target service info) */
@@ -75,5 +79,6 @@ int attack_addr_seeker(const void *el, const void *key);
 int attack_from_hostname(attack_t *attack, const char *name);
 void attackerinit(attacker_t *restrict ipe, const attack_t *restrict attack);
 int attackt_whenlast_comparator(const void *a, const void *b);
+int normalize_address_by_subnet(sshg_address_t *address);
 
 const char *service_to_name(enum service code);

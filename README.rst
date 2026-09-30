@@ -43,7 +43,7 @@ and go into the extracted directory (the one which contains README.rst).
 
 Install build dependencies (assuming `Devuan <https://www.devuan.org/>`_ or derivatives)::
 
-    sudo apt install build-essential debhelper devscripts byacc flex python3-docutils 
+    sudo apt install build-essential debhelper devscripts byacc flex python3-docutils expect
 
 From version 2.4.3-2 of sshguard the required version of ``byacc`` is
 ``1:2.0.20220114-1`` or later which is provided by Devuan 5 Daedalus.

@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT([sshguard], [2.4.3], [sshguard-users@lists.sourceforge.net])
+AC_INIT([sshguard], [2.5.1], [sshguard-users@lists.sourceforge.net])
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([src/sshguard.in])
 AM_CONFIG_HEADER([src/common/config.h])
@@ -37,5 +37,8 @@ AS_BOX([Library Functions])
 AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([pthread_create], [pthread])
 AC_SEARCH_LIBS([socket], [socket])
+
+AC_CHECK_FUNC([setresgid], [AC_DEFINE([HAVE_SETRESGID], [1], [Have setresgid])])
+AC_CHECK_FUNC([setresuid], [AC_DEFINE([HAVE_SETRESUID], [1], [Have setresuid])])
 
 AC_OUTPUT([Makefile src/Makefile src/blocker/Makefile src/fw/Makefile src/parser/Makefile])

@@ -78,6 +78,9 @@ If you are adding a new service, changes are also needed in:
    *attack_parser.y*, where the ``%token`` lines are.
 
 #. Add regular expressions for matching your new tokens in *attack_scanner.l*.
+   Avoid wildcard matches at the beginning of rules; this causes the number of
+   lex DFA states to balloon, leading to slower compilation and larger code
+   size.
 
 #. Add grammar rules for your attack in *attack_parser.y*. A good starting
    point is to look at how the existing signatures are matached from the
@@ -184,7 +187,7 @@ Before release, make sure that:
 
 Then:
 
-1. Tag release: ``git tag -s -m "Tag <version> release" v<version>``
+1. Tag release: ``git tag -m "Tag <version> release" v<version>``
 #. Source tarball should have been generated from ``make distcheck`` already
 #. Sign source tarball ``./distsign <tarball>``
 #. Push tags: ``git push --tags``

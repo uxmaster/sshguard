@@ -1,3 +1,13 @@
+uxmaster-sshguard (2.5.1+20260923-1) unstable; urgency=medium
+
+  * Merge upstream master at dd913a8002fb (2026-09-23).
+  * Retain custom APP and Coturn signatures, including legacy log formats.
+  * Preserve deployment defaults and reduced per-attack logging.
+  * Add Expect to build dependencies for the upstream blocker tests.
+  * Allow scheduling delay in the upstream blocker test timeouts.
+
+ -- Jacek <sshguard@drStypula.pl>  Wed, 30 Sep 2026 21:13:57 +0200
+
 uxmaster-sshguard (2.4.3-5) unstable; urgency=medium
 
   * Let debhelper manage the SysV service lifecycle through invoke-rc.d so

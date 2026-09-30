@@ -24,8 +24,6 @@
 
 #include "attack.h"
 #include "attack_parser.h"
-
-static int getsyslogpid(char *syslogbanner, int length);
 %}
 
 %option debug
@@ -37,16 +35,14 @@ static int getsyslogpid(char *syslogbanner, int length);
 
  /* Start Conditions */
  /* for Login services */
-%s ssh_notallowed ssh_reversemap ssh_disconnect ssh_badproto ssh_badkex cockpit_authfail
+%s ssh_notallowed ssh_reversemap ssh_disconnect ssh_badproto ssh_invalid_format ssh_badkex cockpit_authfail proxmoxve_authfail
  /* for SSHGuard */
 %s sshguard_attack sshguard_block
 %s bind
  /* for Mail services */
-%s dovecot_loginerr cyrusimap_loginerr exim_esmtp_autherr exim_esmtp_loginerr sendmail_relaydenied sendmail_authfailure postfix_loginerr postfix_greylist opensmtpd_failedcmd postscreen
+%s dovecot_loginerr cyrusimap_loginerr exim_esmtp_autherr exim_esmtp_loginerr sendmail_relaydenied sendmail_authfailure postfix_loginerr postfix_nonsmtp postfix_greylist opensmtpd_failedcmd postscreen
  /* for FTP services */
 %s freebsdftpd_loginerr  proftpd_loginerr  pureftpd_loginerr vsftpd_loginerr
- /* for HTTP services */
-%s clf_request clf_request_withuser clf_unauhtorized clfwebprobes_botsearch
  /* for git services */
 %s gitea_autherr
  /* for coturn services */
@@ -59,14 +55,15 @@ HOUR        (0|1)[0-9]|2[0-4]
 MINPS       [0-5][0-9]
 SECONDFRAC  [0-5][0-9]([.,][0-9]+)?
 WORD        [a-zA-Z0-9][-_a-zA-Z0-9]+
-NUMBER      [1-9][0-9]*
+NUMBER      [0-9]*
 FILENAME    [a-zA-Z0-9\/.-]+
 YEAR        (1|2)[0-9]{3}
 TIMEZONE    Z|[-+]{HOUR}(:?{MINPS})?
 
+TEXT_PRI            {WORD}"."{WORD}
 TIMESTAMP_SYSLOG    {MONTH}\ +{DAYNO}\ +{HOUR}:{MINPS}:{MINPS}
 TIMESTAMP_TAI64     [0-9A-Fa-f]{24}
-SOLARIS_MSGID_TAG   "[ID "[0-9]+" "{WORD}"."{WORD}"]"
+SOLARIS_MSGID_TAG   "[ID "[0-9]+" "{TEXT_PRI}"]"
 TIMESTAMP_ISO8601   {YEAR}-{MONTHNO}-{DAYNO}(T|" "){HOUR}:?{MINPS}:?{SECONDFRAC}{TIMEZONE}?
 RFC5234_HEADER      "<"{NUMBER}">"{NUMBER}
 TIMESTAMP_LOCAL     {DAYNO}"/"{MONTH}"/"{YEAR}":"{HOUR}":"{MINPS}":"{MINPS}" "{TIMEZONE}
@@ -86,24 +83,23 @@ PROCESSNAME ([-_a-zA-Z0-9]{2,7})|([-_a-zA-Z0-9]{9,})|([-_a-rt-zA-RT-Z0-9][-_a-zA
  /* IPv4 address (used in IPv6 address too, for IPv4 encapsulation) */
 IPV4        ((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)){3})
  /* IPv6 addresses including compressed variants (RFC 2373) */
-IPV6        (::|:(:[0-9a-fA-F]{1,4}){1,7}|[0-9a-fA-F]{1,4}:([0-9a-fA-F]{1,4}:(:[0-9a-fA-F]{1,4}){1,5}|(:[0-9a-fA-F]{1,4}){1,6})|([0-9a-fA-F]{1,4}:){3}([0-9a-fA-F]{1,4}:(:[0-9a-fA-F]{1,4}){1,3}|(:[0-9a-fA-F]{1,4}){1,4})|([0-9a-fA-F]{1,4}:){5}([0-9a-fA-F]{1,4}:[0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4}|(:[0-9a-fA-F]{1,4}){1,2})|([0-9a-fA-F]{1,4}:){1,7}:)
+IPV6        (::|:(:[0-9a-fA-F]{1,4}){1,7}|[0-9a-fA-F]{1,4}:([0-9a-fA-F]{1,4}:(:[0-9a-fA-F]{1,4}){1,5}|(:[0-9a-fA-F]{1,4}){1,6})|([0-9a-fA-F]{1,4}:){3}([0-9a-fA-F]{1,4}:(:[0-9a-fA-F]{1,4}){1,3}|(:[0-9a-fA-F]{1,4}){1,4})|([0-9a-fA-F]{1,4}:){5}([0-9a-fA-F]{1,4}:[0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4}|(:[0-9a-fA-F]{1,4}){1,2})|([0-9a-fA-F]{1,4}:){1,7}:)("%"{WORD})?
  /* an IPv4 packed in IPv6 as IPv4-mapped IPv6 address */
 IPV4MAPPED6 ((:(:0{1,4}){0,4}|0{1,4}:(:0{1,4}){1,3}|(0{1,4}:){2}(0{1,4}:0{0,4}:0{1,4}|(:0{1,4}){1,2})|(0{1,4}:){1,4}):[fF]{4}:(((2[0-4]|1[0-9]|[1-9])?[0-9]|25[0-5])\.){3}((2[0-4]|1[0-9]|[1-9])?[0-9]|25[0-5]))
 
 KEY_ALGORITHM    (?i:(RSA|DSA|ECDSA|ED25519))
 KEY_FINGERPRINT  (?i:(MD5|SHA256)((:[a-f0-9]{2}){16}|:[0-9a-z+\/]{43}))
 
-HOSTNAME    ([-a-zA-Z0-9]+\.)*[-a-zA-Z0-9]+
-HOSTADDR    localhost|([-a-zA-Z0-9]+\.)+[a-zA-Z]+|{IPV4}|{IPV6}|{IPV4MAPPED6}
+HOSTNAME    ([-a-zA-Z0-9]+\.)+[-a-zA-Z0-9]+
+HOSTADDR    {HOSTNAME}|{IPV4}|{IPV6}|{IPV4MAPPED6}
 FACLEVEL    (<[a-zA-Z0-9]+\.[a-zA-Z0-9]+>)
 
 HTTP_REQUEST    (GET|HEAD|PUT|POST|DELETE)
 HTTP_VERSION    HTTP"/"[0-9]("."[0-9])?
-HTTP_STATUSCODE [0-9]{3}
-HTTP_SUCCESS    200
-HTTP_REDIRECT   3[0-9]{2}
-HTTP_AUTHFAIL   401
-HTTP_CLIERROR   4[0-9]{2}
+
+ // RFC 5424 says HOSTNAME header field SHOULD contain the FQDN.
+ // IP addresss and hostname may also be present in HOSTNAME.
+SYSLOG_HOSTNAME   {WORD}|{HOSTADDR}
 
 APP_BADREQUEST 40[014]{1}
 
@@ -113,16 +109,18 @@ APP_BADREQUEST 40[014]{1}
   */
 COTURN_SESSION_INFO (([0-9]+|{TIMESTAMP_ISO8601})": ("[0-9]+"): INFO: session "[0-9]{18}": "|({TIMESTAMP_ISO8601}|[0-9]+)" INFO "("session "[0-9]{18}": ")?)
 COTURN_SESSION_SUFFIX (" (session "[0-9]{18}")")?
-COTURN_ADDR ({HOSTADDR}|"["{HOSTADDR}"]")
+ /* Preserve single-label Coturn names after upstream tightened HOSTNAME.
+  * https://bitbucket.org/sshguard/sshguard/commits/e8278dc6fd4e7d61447183a67f309b58533aa403
+  */
+COTURN_HOSTNAME ([-a-zA-Z0-9]+\.)*[-a-zA-Z0-9]+
+COTURN_ADDR ({HOSTADDR}|"localhost"|"["{HOSTADDR}"]")
 
- /* Common Log Format. */
-CLF_MISSING        "-"|"\"-\""
-CLF_USER_ID        {WORD}|"\""{WORD}"\""
-CLF_USER_NAME      {WORD}|"\""{WORD}"\""
-CLF_OPT_USER_ID    {CLF_MISSING}|{WORD}
-CLF_OPT_USER_NAME  {CLF_MISSING}|{WORD}
-CLF_TIMESTAMP      "["({TIMESTAMP_LOCAL}|{TIMESTAMP_ISO8601})"]"
-CLF_REQUEST        "\""{HTTP_REQUEST}" "{FILENAME}" "{HTTP_VERSION}"\""
+ // timestamp (optional PRI) hostname
+SYSLOG_HEADER     ({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+{FACLEVEL}?[ ]*{SYSLOG_HOSTNAME}[ ]+
+
+ // identifies process
+SYSLOG_TAG        {PROCESSNAME}("/"{PROCESSNAME}){0,2}
+SYSLOG_PID        "["{NUMBER}"]"
 
  /* Common configuration for http botsearch
   * Adapted from fail2ban botsearch filters & tweaked by alip☮exherbo.org,
@@ -132,12 +130,15 @@ HTTP_BOTSEARCH_WEBMAIL     roundcube|(ext)?mail|horde|(v-?)?webmail
 HTTP_BOTSEARCH_PHPMYADMIN  (typo3"/"|xampp"/"|admin"/")?(pma|(php)?[Mm]y[Aa]dmin)
 HTTP_BOTSEARCH_WORDPRESS   wp-(admin|config|login|signup)"."php
 HTTP_BOTSEARCH_JOOMLA      ("administrator/")?"index.php?option=com_"
-HTTP_BOTSEARCH             .*({HTTP_BOTSEARCH_WEBMAIL}|{HTTP_BOTSEARCH_PHPMYADMIN}|{HTTP_BOTSEARCH_WORDPRESS}|{HTTP_BOTSEARCH_JOOMLA}|cgi-bin|mysqladmin)[^,]*
+HTTP_BOTSEARCH             .*("/"{HTTP_BOTSEARCH_WEBMAIL}|{HTTP_BOTSEARCH_PHPMYADMIN}|{HTTP_BOTSEARCH_WORDPRESS}|{HTTP_BOTSEARCH_JOOMLA}|cgi-bin|mysqladmin)[^,]*
 
 WORDPRESS_LOGIN            "/wp-login"(\.php)?
 TYPO3_LOGIN                "/typo3/?loginProvider="
 CONTAO_LOGIN               "/contao/login?_hash="
 HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
+
+/* any string without spaces that begins with /, not matching any of the above */
+HTTP_PATH                  "/"[^ ]+
 %%
 
 
@@ -145,51 +146,27 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
   * syslog banner, eg "Nov 22 09:58:58 freyja sshd[94637]: "
   * tokenized as: timestamp hostname procname(subname) [pid]:
   *  both the subname and pid parts can be missing
-  *
-  * return SYSLOG_BANNER_PID or SYSLOG_BANNER depending on the presence of [pid]
   */
 
  /* handle entries with PID and without PID from processes other than sshguard */
-({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+{FACLEVEL}?[ ]*([a-zA-Z0-9]|{WORD}|{HOSTADDR})[ ]+{PROCESSNAME}("/"{PROCESSNAME}){0,2}"["{NUMBER}"]":?" "{SOLARIS_MSGID_TAG}? {
-        /* extract PID */
-        yylval.num = getsyslogpid(yytext, yyleng);
-        return SYSLOG_BANNER_PID;
-        }
+{SYSLOG_HEADER}{SYSLOG_TAG}{SYSLOG_PID}:?" "{SOLARIS_MSGID_TAG}? return SYSLOG_BANNER;
 
-({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+{FACLEVEL}?[ ]*([a-zA-Z0-9]|{WORD}|{HOSTADDR})[ ]+({PROCESSNAME}("/"{PROCESSNAME}){0,2})?":"   { return SYSLOG_BANNER; }
+{SYSLOG_HEADER}{SYSLOG_TAG}":" return SYSLOG_BANNER;
 
- /* busybox syslog -S */
-({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+({PROCESSNAME}("/"{PROCESSNAME}){0,2}"["{NUMBER}"]")?":"   { return SYSLOG_BANNER; }
+ /*
+  * Busybox syslog banner
+  * timestamp (optional host) (optional priority) tag:
+  */
+({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})" "({SYSLOG_HOSTNAME}" ")?({TEXT_PRI}" ")?{SYSLOG_TAG}{SYSLOG_PID}":" return BUSYBOX_SYSLOG_BANNER;
 
  /* RFC 5424 banner */
-{RFC5234_HEADER}" "{TIMESTAMP_ISO8601}" "{HOSTNAME}" "{PROCESSNAME}" "{NUMBER}" - - " { return RFC_5234_BANNER; }
-
+({RFC5234_HEADER}" ")?{TIMESTAMP_ISO8601}" "({WORD}|{HOSTNAME})" "{PROCESSNAME}" "{NUMBER}" - - " { return RFC_5234_BANNER; }
 
  /* metalog banner */
-{TIMESTAMP_SYSLOG}" ["{PROCESSNAME}("/"{PROCESSNAME}){0,2}"] "                         { return METALOG_BANNER; }
+{TIMESTAMP_SYSLOG}" ["{SYSLOG_TAG}"] " return METALOG_BANNER;
 
- /*
-  * socklog banner, eg
-  * "2015-05-27T04:31:28.10040 auth.info: May 27 04:31:28 sshd[30993]: "
-  *
-  * Some strip the redundant timestamp, eg
-  * "2015-05-27T04:31:28.10040 auth.info: sshd[30993]: "
-  */
-({TIMESTAMP_ISO8601}" ")?{WORD}"."{WORD}": "({TIMESTAMP_SYSLOG}" ")?{PROCESSNAME}("/"{PROCESSNAME}){0,2}"["{NUMBER}"]: "{SOLARIS_MSGID_TAG}? {
-        yylval.num = getsyslogpid(yytext, yyleng);
-        return SOCKLOG_BANNER_PID;
-        }
-
-({TIMESTAMP_ISO8601}" ")?{WORD}"."{WORD}": "({TIMESTAMP_SYSLOG}" ")?({PROCESSNAME}("/"{PROCESSNAME}){0,2}"["{NUMBER}"]:")?   { return SOCKLOG_BANNER; }
-
- /*
-  * Busybox syslog banner, e/g/
-  * "Jun 20 02:18:39 vps auth.info sshd[13482]: "
-  */
-{TIMESTAMP_SYSLOG}" "([a-zA-Z0-9]|{WORD}|{HOSTADDR})" "{WORD}"."{WORD}" "{PROCESSNAME}("/"{PROCESSNAME}){0,2}"["{NUMBER}"]: " {
-        yylval.num = getsyslogpid(yytext, yyleng);
-        return BUSYBOX_SYSLOG_BANNER_PID;
-        }
+ /* socklog banner */
+({TIMESTAMP_ISO8601}" ")?{TEXT_PRI}": "({TIMESTAMP_SYSLOG}" ")?({SYSLOG_TAG}{SYSLOG_PID}":")? return SOCKLOG_BANNER;
 
  /* SSH: invalid or rejected user (cross platform [generated by openssh]) */
 "Disconnecting "[Ii]"nvalid user "[^ ]+" "                      { return SSH_INVALUSERPREF; }
@@ -229,8 +206,22 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "Bad protocol version identification".*" from "                 { BEGIN(ssh_badproto); return SSH_BADPROTOCOLIDENTIF; }
 <ssh_badproto>[ \n].*                                           { BEGIN(INITIAL); return SSH_BADPROTOCOLIDENTIF_SUFF; }
 
+"banner exchange: Connection from "                             { BEGIN(ssh_invalid_format); return SSH_INVALIDFORMAT_PREF; }
+<ssh_invalid_format>(" port ".*)[: ]"invalid format"            { BEGIN(INITIAL); return SSH_INVALIDFORMAT_SUFF; }
+
 "fatal: "?"Unable to negotiate with "                                     { BEGIN(ssh_badkex); return SSH_BADKEX_PREF; }
 <ssh_badkex>(" port ".*)?[: ].*"no matching ".*" found".*       { BEGIN(INITIAL); return SSH_BADKEX_SUFF; }
+
+"Timeout before authentication for connection from"             return SSH_PREAUTH_TIMEOUT;
+"drop connection #0 from ["                                     return SSH_PREAUTH_TIMEOUT;
+"to "{HOSTADDR}", pid = "{NUMBER}                               return SSH_PREAUTH_SUFF;
+"]:"{NUMBER}" on ["{HOSTADDR}"]:"{NUMBER}" penalty: ".*         return SSH_PREAUTH_SUFF;
+
+[Bb]"ad "("PAM ")?"password attempt for "[^ ]+" from "                      { return DROPBEAR_BAD_PASSWORD; }
+[Ll]"ogin attempt for nonexistent user from"                     { return DROPBEAR_BAD_USER; }
+[Ee]"xit before auth from <"                                     { return DROPBEAR_EXIT_BEFORE_AUTH_PREF; }
+">:".*                                                           { return DROPBEAR_EXIT_BEFORE_AUTH_SUFF; }
+
 
  /* SSHGuard */
 "Attack from \""                                                { BEGIN(sshguard_attack); return SSHGUARD_ATTACK_PREF; }
@@ -246,7 +237,7 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "authentication failure "[^0-9]+                                { return CUCIPOP_AUTHFAIL; }
 
  /* Exim */
-"authenticator failed for ".+" ["                               { BEGIN(exim_esmtp_autherr); return EXIM_ESMTP_AUTHFAIL_PREF; }
+({WORD}" ")?"authenticator failed for ".+" ["                   { BEGIN(exim_esmtp_autherr); return EXIM_ESMTP_AUTHFAIL_PREF; }
 <exim_esmtp_autherr>"]"(:{NUMBER})?(" I=".+)?(" U=".+)?": 535 Incorrect authentication data"(" (set_id=".+")")?    { BEGIN(INITIAL); return EXIM_ESMTP_AUTHFAIL_SUFF; }
 
 "SMTP protocol error in \"AUTH LOGIN\" H="({HOSTNAME}" ")?"(".*") ["              { BEGIN(exim_esmtp_loginerr); return EXIM_ESMTP_LOGINFAIL_PREF; }
@@ -261,8 +252,9 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 <sendmail_authfailure>"]".*                                     { BEGIN(INITIAL); return SENDMAIL_AUTHFAILURE_SUFF; }
 
  /* dovecot */
-("(libdovecot."[0-9\.]+".dylib) ")?(imap|pop3|submission)"-login: ""Info: "?("Aborted login"|Disconnected).*" (auth failed, "{NUMBER}" attempts".*"): ".+" rip=" { BEGIN(dovecot_loginerr); return DOVECOT_IMAP_LOGINERR_PREF; }
+("(libdovecot."[0-9\.]+".dylib) ")?(imap|pop3|submission)"-login: ""Info: "?("Aborted login"|Disconnected|"Login aborted").*" (auth failed, "{NUMBER}" attempts".*"): ".+" rip=" { BEGIN(dovecot_loginerr); return DOVECOT_IMAP_LOGINERR_PREF; }
 <dovecot_loginerr>", lip=".+                                        { BEGIN(INITIAL); return DOVECOT_IMAP_LOGINERR_SUFF; }
+"pam_unix(dovecot:auth): "?"authentication failure; logname= uid=0 euid=0 tty=".*" ruser=".*" rhost=" { return DOVECOT_IMAP_LOGINERR_PAM; }
 
  /* UWimap login errors */
 "Login failed user="[^ ]+" auth="[^ ]*" host="[^ ]+" "          { return UWIMAP_LOGINERR; }
@@ -272,12 +264,12 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 <cyrusimap_loginerr>"] ".*"SASL".*"fail".*$                     { BEGIN(INITIAL); return CYRUSIMAP_SASL_LOGINERR_SUFF; }
 
  /* postfix */
-"warning: "({WORD}|{HOSTADDR})"["                               { BEGIN(postfix_loginerr); return POSTFIX_SASL_LOGINERR_PREF; }
-<postfix_loginerr>"]: SASL "[-A-Z0-9]+" authentication fail".*  { BEGIN(INITIAL); return POSTFIX_SASL_LOGINERR_SUFF; }
-"lost connection after AUTH from ".*"["                         { return POSTFIX_NO_AUTH_PREF; }
+"warning: unknown["                                             { BEGIN(postfix_loginerr); return POSTFIX_SASL_LOGINERR_PREF; }
+<postfix_loginerr>": SASL "[-A-Z0-9]+" authentication fail".*   { BEGIN(INITIAL); return POSTFIX_SASL_LOGINERR_SUFF; }
+"lost connection after "("AUTH"|"CONNECT")" from ".*"["         { return POSTFIX_NO_AUTH_PREF; }
  /* non-SMTP on an SMTP port suggests port-scanning activity */
-"warning: non-SMTP command from "({WORD}|{HOSTADDR})"["         { BEGIN(postfix_loginerr); return POSTFIX_NONSMTP; }
-<postfix_loginerr>"]:".*                                        { BEGIN(INITIAL); return POSTFIX_NONSMTP_SUFF; }
+"warning: non-SMTP command from unknown["                       { BEGIN(postfix_nonsmtp); return POSTFIX_NONSMTP; }
+<postfix_nonsmtp>":".*                                          { BEGIN(INITIAL); return POSTFIX_NONSMTP_SUFF; }
 
 "action=greylist".*"client_address="                            { BEGIN(postfix_greylist); return POSTFIX_GREYLIST; }
 <postfix_greylist>",".*                                         { BEGIN(INITIAL); return POSTFIX_GREYLIST_SUFF; }
@@ -285,7 +277,7 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "PREGREET".*"["                                                 { BEGIN(postscreen); return POSTSCREEN_PREF; }
 "DNSBL".*"["                                                    { BEGIN(postscreen); return POSTSCREEN_PREF; }
 "HANGUP".*"["                                                   { BEGIN(postscreen); return POSTSCREEN_PREF; }
-<postscreen>"]:".*                                              { BEGIN(INITIAL); return POSTSCREEN_SUFF; }
+<postscreen>":".*                                               { BEGIN(INITIAL); return POSTSCREEN_SUFF; }
 
  /* FreeBSD's ftpd login errors */
 "FTP LOGIN FAILED FROM "                                        { BEGIN(freebsdftpd_loginerr); return FREEBSDFTPD_LOGINERR_PREF; }
@@ -299,7 +291,7 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "]) - USER "{WORD}" (Login failed): ".*                         { BEGIN(INITIAL); return PROFTPD_LOGINERR_SUFF; }
 
  /* Pure-FTPd */
-"pure-ftpd: "?"("("?"|{WORD}|{HOSTADDR})"@"                     { BEGIN(pureftpd_loginerr); return PUREFTPD_LOGINERR_PREF; }
+"pure-ftpd: "?"("("?"|{SYSLOG_HOSTNAME})"@"                     { BEGIN(pureftpd_loginerr); return PUREFTPD_LOGINERR_PREF; }
 <pureftpd_loginerr>") [WARNING] Authentication failed for user ".+  { BEGIN(INITIAL); return PUREFTPD_LOGINERR_SUFF; }
 
  /* vsftpd */
@@ -310,20 +302,20 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "pam_unix(cockpit:auth): "?"authentication failure; logname= uid=0 euid=0 tty= ruser= rhost="  { BEGIN(cockpit_authfail); return COCKPIT_AUTHFAIL_PREF; }
 <cockpit_authfail>" "+"user=".+                                    { BEGIN(INITIAL); return COCKPIT_AUTHFAIL_SUFF; }
 
- /* HTTP Basic AUTH – unauthorized. */
-{CLF_OPT_USER_ID}" "{CLF_USER_NAME}" "{CLF_TIMESTAMP} { BEGIN(clf_request_withuser); return CLF_UNAUTHOIRIZED_PREF; }
-<clf_request_withuser>" "{CLF_REQUEST}" "{HTTP_AUTHFAIL}.+ { BEGIN(INITIAL); return CLF_UNAUTHOIRIZED_SUFF; }
 
- /* Common Log Format */
-{CLF_OPT_USER_ID}" "{CLF_OPT_USER_NAME}" "{CLF_TIMESTAMP} { BEGIN(clf_request); return CLF_REQUEST_PREF; }
+ /* CLF {{{ */
+"["({TIMESTAMP_LOCAL}|{TIMESTAMP_ISO8601})"]" return CLF_TIMESTAMP;
 
  /* HTTP probes for common web services. */
-<clf_request>" \""{HTTP_REQUEST}" "{HTTP_BOTSEARCH}" "{HTTP_VERSION}"\" "{HTTP_CLIERROR}.+ { BEGIN(INITIAL); return CLFWEBPROBES_BOTSEARCH_SUFF; }
-<clf_request>" \""{HTTP_REQUEST}" ".*" "{HTTP_VERSION}"\" 444".+ { BEGIN(INITIAL); return CLFWEBPROBES_BOTSEARCH_SUFF; }
+"\""{HTTP_REQUEST}" "{HTTP_BOTSEARCH}" "{HTTP_VERSION}"\"" { return CLF_WEB_PROBE; }
 
  /* Bad login URLs.
     HTTP 200 OK responses via POST are failed requests */
-<clf_request>" \"POST "{HTTP_LOGIN_200OK_BAD}" "{HTTP_VERSION}"\" 200".+  { BEGIN(INITIAL); return CLF_LOGIN_URL_SUFF; }
+" \"POST "{HTTP_LOGIN_200OK_BAD}" "{HTTP_VERSION}"\"" { return CLF_CMS_LOGIN; }
+
+"("[0-9]+(.[0.-9]+)")" return CLF_SUFFIX;
+
+ /* }}} */
 
  /* OpenSMTPD. */
  /* Unsupported command when attempting to log in. */
@@ -331,6 +323,9 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 <opensmtpd_failedcmd>"host="{HOSTNAME}" command=\"".+"\" result=\"503 5.5.1 Invalid command: Command not supported\"" { BEGIN(INITIAL); return OPENSMTPD_UNSUPPORTED_CMD_SUFF; }
  /* Bad credentials */
 <opensmtpd_failedcmd>"host="{HOSTNAME}" command=\"AUTH ".+"\" result=\"535 Authentication failed\"" { BEGIN(INITIAL); return OPENSMTPD_AUTHFAIL_SUFF; }
+
+ /* pfSense web configurator */
+{HTTP_PATH}": webConfigurator authentication error for user '".+"' from: " { return PFSENSE_AUTH_FAIL; }
 
  /* Courier IMAP/POP */
 "LOGIN FAILED, "(user|method)=[^ ,]+", ip="                     { return COURIER_AUTHFAIL_PREF; }
@@ -344,7 +339,7 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
  /* coturn */
 {COTURN_SESSION_INFO}("socket event: ")?"SSL shutdown received, socket to be closed"(": "[^()\r\n]+)?" (local "{COTURN_ADDR}":"{NUMBER}", remote "        { BEGIN(corturn_ssl_shutdown); return COTURN_SSL_SHUTDOWN_PREF; }
 <corturn_ssl_shutdown>":"{NUMBER}")"{COTURN_SESSION_SUFFIX}                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
-{COTURN_SESSION_INFO}"closed (2nd stage), user <> realm <"{HOSTNAME}"> origin <"{HOSTNAME}*">, local "{COTURN_ADDR}":"{NUMBER}", remote "                                                 { BEGIN(coturn_socket_error); return COTURN_SOCKET_ERROR_PREF; }
+{COTURN_SESSION_INFO}"closed (2nd stage), user <> realm <"{COTURN_HOSTNAME}"> origin <"{COTURN_HOSTNAME}*">, local "{COTURN_ADDR}":"{NUMBER}", remote "                                                 { BEGIN(coturn_socket_error); return COTURN_SOCKET_ERROR_PREF; }
 <coturn_socket_error>":"{NUMBER}", reason: TLS/TCP socket buffer operation error (callback)"{COTURN_SESSION_SUFFIX}  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
 
  /* Gitea - also with color codes */
@@ -361,14 +356,23 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 "Login failed. The login is from an untrusted domain and cannot be used with Integrated authentication. [CLIENT: " { return MSSQL_AUTHFAIL_PREF; }
 "Length specified in network packet payload did not match number of bytes read; the connection has been closed. Please contact the vendor of the client library. [CLIENT: " { return MSSQL_AUTHFAIL_PREF; }
 
+ /* MySQL */
+"["{WORD}"] [MY-"{NUMBER}"] ["{WORD}"]" { return MYSQL_PREF; }
+"Access denied for user '".*"'@'" { return MYSQL_ACCESS_DENIED_PREF; }
+"'".* { return MYSQL_ACCESS_DENIED_SUFF; }
+
+ /* Proxmox VE */
+ /* failed authentication */
+"authentication failure; rhost="  { BEGIN(proxmoxve_authfail); return PROXMOXVE_AUTHFAIL_PREF; }
+<proxmoxve_authfail>" "+"user=".+" "+"msg=".+                        { BEGIN(INITIAL); return PROXMOXVE_AUTHFAIL_SUFF; }
+
  /**         COMMON-USE TOKENS       do not touch these          **/
  /* an IPv4 address */
 {IPV4}                                                          { yylval.str = yytext; return IPv4; }
 {IPV4MAPPED6}                                                   { yylval.str = strrchr(yytext, ':')+1; return IPv4; }
 
- /* an IPv6 address */
- /* standard | clouds implied | embedded IPv4 */
-{IPV6}                                                          { yylval.str = strdup(yytext); return IPv6; }
+ /* an IPv6 address, stripping an optional interface identifier, e.g. %eth0 */
+{IPV6}                                                          { yylval.str = strtok(yytext, "%"); return IPv6; }
 
  /* an host address (PTR) */
 {HOSTADDR}                                                      { yylval.str = yytext; return HOSTADDR; }
@@ -388,6 +392,9 @@ HTTP_LOGIN_200OK_BAD       .*({WORDPRESS_LOGIN}|{TYPO3_LOGIN}|{CONTAO_LOGIN}).*
 
  /*[^ :]+:[^ ]+                                                    { return FACILITYPRIORITY; } */
 {WORD}                                                          { yylval.str = yytext; return WORD; }
+
+"\""[^"]*"\"" { return STRING; }
+
 [ \n\r\t]+            /* eat blanks */
  /* literals */
  /*\n                                                              { return NEWLINE; } */
@@ -403,11 +410,4 @@ void scanner_init(char *str) {
 
 void scanner_fin() {
     yy_delete_buffer(YY_CURRENT_BUFFER);
-}
-
-static int getsyslogpid(char *syslogbanner, int length) {
-    int i;
-    syslogbanner[length-2] = '\0';
-    for (i = length; syslogbanner[i] != '['; i--);
-    return strtol(& syslogbanner[i+1], (char **)NULL, 10);
 }

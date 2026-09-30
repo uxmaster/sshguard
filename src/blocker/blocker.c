@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "address.h"
+#include "attack.h"
 #include "blocklist.h"
 #include "sandbox.h"
 #include "simclist.h"
@@ -61,7 +64,7 @@ list_t limbo;
 list_t offenders;
 
 /* handler for termination-related signals */
-static void sigfin_handler();
+static void sigfin_handler(int);
 /* called at exit(): flush blocked addresses and finalize subsystems */
 static void finishup(void);
 
@@ -70,27 +73,18 @@ static void report_address(attack_t attack);
 /* cleanup false-alarm attackers from limbo list (ones with too few attacks in too much time) */
 static void purge_limbo_stale(void);
 
-static void init_log(int debug) {
-    int flags = LOG_NDELAY | LOG_PID;
-    int dest = LOG_AUTH;
-
-    if (debug) {
-        flags |= LOG_PERROR;
-        dest = LOG_LOCAL6;
-    } else {
-        setlogmask(LOG_UPTO(LOG_INFO));
-    }
-
-    // Set local time zone and open log before entering sandbox.
-    tzset();
-    openlog("sshguard", flags, dest);
-}
-
 int main(int argc, char *argv[]) {
-    int sshg_debugging = (getenv("SSHGUARD_DEBUG") != NULL);
-    init_log(sshg_debugging);
+    sigset_t set;
 
+    init_log();
     srand(time(NULL));
+
+    /* block signals to child threads */
+    sigemptyset(&set);
+    sigaddset(&set, SIGTERM);
+    sigaddset(&set, SIGHUP);
+    sigaddset(&set, SIGINT);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     /* pending, blocked, and offender address lists */
     list_init(&limbo);
@@ -115,11 +109,20 @@ int main(int argc, char *argv[]) {
         blacklist_load_and_block();
     }
 
+    /* unblock signals to main thread */
+    pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+
     /* termination signals */
     signal(SIGTERM, sigfin_handler);
     signal(SIGHUP, sigfin_handler);
     signal(SIGINT, sigfin_handler);
-    atexit(finishup);
+
+    // On BSD, signal handlers installed with signal() are restartable by
+    // default, which means that fgets() won't return immediately after a
+    // signal. We need to change this here.
+    siginterrupt(SIGTERM, 1);
+    siginterrupt(SIGHUP, 1);
+    siginterrupt(SIGINT, 1);
 
     sandbox_init();
 
@@ -135,20 +138,26 @@ int main(int argc, char *argv[]) {
 
     char buf[1024];
     attack_t parsed_attack;
-    while (fgets(buf, sizeof(buf), stdin) != NULL) {
+    while (!exit_sig && fgets(buf, sizeof(buf), stdin) != NULL) {
         if (sscanf(buf, "%d %46s %d %d\n", (int*)&parsed_attack.service,
                   parsed_attack.address.value, &parsed_attack.address.kind,
                   &parsed_attack.dangerousness) == 4) {
             report_address(parsed_attack);
         } else {
             sshguard_log(LOG_ERR, "Could not parse attack data.");
-            exit(65);
+            break;
         }
     }
 
-    if (feof(stdin)) {
+    if (exit_sig) {
+        sshguard_log(LOG_INFO, "Exiting on %s.",
+                exit_sig == SIGHUP ? "SIGHUP" :
+                exit_sig == SIGINT ? "SIGINT" :
+                exit_sig == SIGTERM ? "SIGTERM" : "signal");
+    } else if (feof(stdin)) {
         sshguard_log(LOG_DEBUG, "Received EOF from stdin.");
     }
+    finishup();
 }
 
 void log_block(attacker_t *tmpent, attacker_t *offenderent) {
@@ -161,7 +170,7 @@ void log_block(attacker_t *tmpent, attacker_t *offenderent) {
             abort();
         }
     }
-    sshguard_log(LOG_INFO, "Blocking \"%s/%u\" %s (%u attacks in %lld "
+    sshguard_log(LOG_NOTICE, "Blocking \"%s/%u\" %s (%u attacks in %lld "
                               "secs, after %d abuses over %lld secs.)",
                  tmpent->attack.address.value, subnet_size, time_msg, tmpent->numhits,
                  (long long)(tmpent->whenlast - tmpent->whenfirst),
@@ -176,6 +185,8 @@ void log_block(attacker_t *tmpent, attacker_t *offenderent) {
  *      --OR-- create them if first sight.
  * 2) block the attacker, if attacks > threshold (abuse)
  * 3) blacklist the address, if the number of abuses is excessive
+ *
+ * @param attack The attack structure with normalized address
  */
 static void report_address(attack_t attack) {
     attacker_t *tmpent = NULL;
@@ -183,6 +194,17 @@ static void report_address(attack_t attack) {
 
     assert(attack.address.value != NULL);
     assert(memchr(attack.address.value, '\0', sizeof(attack.address.value)) != NULL);
+
+    /* Save original address before normalization */
+    char original_address[ADDRLEN];
+    strncpy(original_address, attack.address.value, sizeof(original_address));
+    original_address[sizeof(original_address) - 1] = '\0';
+
+    /* Normalize address by subnet for aggregation */
+    if (normalize_address_by_subnet(&attack.address) != 0) {
+        sshguard_log(LOG_WARNING, "Could not normalize address %s, using as-is",
+                    attack.address.value);
+    }
 
     /* clean list from stale entries */
     purge_limbo_stale();
@@ -200,10 +222,19 @@ static void report_address(attack_t attack) {
         return;
     }
 
-    sshguard_log(LOG_DEBUG,
-                 "Attack from \"%s\" on service %s with danger %u.",
-                 attack.address.value, service_to_name(attack.service),
-                 attack.dangerousness);
+    if (opts.mask_method != MASK_NONE) {
+        /* Address was normalized - show both original and normalized */
+        sshguard_log(LOG_DEBUG,
+                     "Attack from \"%s\" (aggregated to subnet %s) on service %s with danger %u.",
+                     original_address, attack.address.value,
+                     service_to_name(attack.service), attack.dangerousness);
+    } else {
+        /* Single address matching - no subnet aggregation, or address wasn't normalized */
+        sshguard_log(LOG_DEBUG,
+                     "Attack from \"%s\" on service %s with danger %u.",
+                     attack.address.value, service_to_name(attack.service),
+                     attack.dangerousness);
+    }
 
     /* search entry in list */
     tmpent = list_seek(& limbo, & attack.address);
@@ -261,10 +292,10 @@ static void report_address(attack_t attack) {
         if (opts.blacklist_filename != NULL) {
             blacklist_add(offenderent);
         }
-    } else {
+    } else if (opts.block_time_multiplier > 1) {
         /* compute blocking time wrt the "offensiveness" */
         for (unsigned int i = 0; i < offenderent->numhits - 1; i++) {
-            tmpent->pardontime *= 2;
+            tmpent->pardontime *= opts.block_time_multiplier;
         }
     }
     list_sort(& offenders, -1);
@@ -290,13 +321,10 @@ static void purge_limbo_stale(void) {
 }
 
 static void finishup(void) {
-    sshguard_log(LOG_INFO, "Exiting on %s.",
-            exit_sig == SIGHUP ? "SIGHUP" : "signal");
     whitelist_fin();
     closelog();
 }
 
 static void sigfin_handler(int sig) {
     exit_sig = sig;
-    exit(0);
 }
