@@ -1,10 +1,22 @@
 uxmaster-sshguard (2.5.1+20260923-1) unstable; urgency=medium
 
-  * Merge upstream master at dd913a8002fb (2026-09-23).
-  * Retain custom APP and Coturn signatures, including legacy log formats.
-  * Preserve deployment defaults and reduced per-attack logging.
-  * Add Expect to build dependencies for the upstream blocker tests.
-  * Allow scheduling delay in the upstream blocker test timeouts.
+  * Support Coturn 4.17 and 4.18 logs while retaining support for older
+    Coturn log formats.
+  * Treat all HTTP 401 responses in Common Log Format as attacks.
+  * Reduce false positives in web logs, including HTTP redirects and
+    unrelated URLs containing "mail".
+  * Recognize updated OpenSSH, Dovecot, Exim and Postfix authentication logs.
+  * Add attack detection for Dropbear SSH, MySQL, the pfSense Web
+    Configurator and Proxmox VE.
+  * Improve syslog detection for fully qualified hostnames, IP addresses
+    and RFC 5424 messages from sysklogd.
+  * Recognize longer web requests and improve handling of quoted log fields.
+  * Fix memory growth when processing IPv6 logs.
+  * Fix service shutdown hangs and unreliable termination during restarts.
+  * Allow configuring block duration increases for repeat offenders and
+    optionally accumulating attack scores per IPv4/IPv6 subnet.
+  * Add optional Prometheus-compatible attack statistics.
+  * Allow running the log parser and blocker as an unprivileged user.
 
  -- Jacek <sshguard@drStypula.pl>  Wed, 30 Sep 2026 21:13:57 +0200
 
