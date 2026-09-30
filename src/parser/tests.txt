@@ -35,6 +35,74 @@ Dec  7 10:43:11 node-23154 turnserver: 3: (962): INFO: session 00200000000000000
 998 91.102.183.84 4 10
 M
 
+# Legacy, 4.17, and 4.18 formats, including new-log-timestamp=false.
+3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
+998 198.51.100.20 4 10
+M
+3: (960): INFO: session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 10
+M
+3 INFO session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
+998 198.51.100.20 4 10
+M
+3 INFO session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+3 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+3 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+Sep 30 16:00:00 node turnserver: 2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+@400000005f8a6ba2232c8c0e 2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local [2001:db8::10]:443, remote [2001:db8::20]:50000) (session 000000000000000007)
+998 2001:db8::20 6 10
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local [2001:db8::10]:443, remote [2001:db8::20]:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 2001:db8::20 6 10
+M
+3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local [2001:db8::10]:443, remote [2001:db8::20]:50000)
+998 2001:db8::20 6 10
+M
+3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed: Resource temporarily unavailable (local 192.0.2.10:443, remote 198.51.100.20:50000)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed: Resource temporarily unavailable (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+998 198.51.100.20 4 10
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <rtc> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+*
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: allocation timeout (session 000000000000000007)
+*
+M
+2026-09-30T16:00:00.123+0200 INFO socket event: socket read failed, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+*
+M
+2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 7)
+*
+M
+2026-09-30T16:00:00.123+0200 ERROR socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
+*
+M
+
 #### SSH
 Invalid user inexu from 6.6.6.0
 100 6.6.6.0 4 10
