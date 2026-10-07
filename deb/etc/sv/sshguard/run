@@ -4,4 +4,6 @@ set -e
 exec 2>&1
 /usr/sbin/iptables -N sshguard >/dev/null 2>&1 || true
 /usr/sbin/ip6tables -N sshguard >/dev/null 2>&1 || true
-exec /usr/sbin/sshguard
+# SSHGuard's EXIT trap runs "kill 0"; isolate it from runsv and svlogd.
+# https://smarden.org/runit/chpst.8
+exec chpst -P /usr/sbin/sshguard
