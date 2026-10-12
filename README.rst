@@ -5,10 +5,18 @@ SSHGuard (fork)
 services. It aggregates system logs and blocks repeat offenders using one of
 several firewall backends.
 
+**This is my fork of the original SSHGuard.**
+
+Public Git mirrors of my Mercurial repo:
+- `uxmaster-sshguard on GitLab <https://gitlab.com/uxmaster/sshguard>`_
+- `uxmaster-sshguard on GitHub <https://github.com/uxmaster/sshguard>`_
+
+
+Upstream
+==========
+
 - Website: https://www.sshguard.net/
 - Bitbucket: https://bitbucket.org/sshguard/sshguard/
-
-**This is my fork of the original SSHGuard.**
 
 
 My changes
