@@ -40,8 +40,9 @@ License: GPL-3+
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; version 3 dated June, 2007, or (at
  your option) any later version.
- On Debian systems, the complete text of version 3 of the GNU General
- Public License can be found in '/usr/share/common-licenses/GPL-3'.
+ On Devuan systems (https://www.devuan.org/), the complete text of version 3
+ of the GNU General Public License can be found in
+ '/usr/share/common-licenses/GPL-3'.
 
 License: ISC
  Permission to use, copy, modify, and distribute this software for any

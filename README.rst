@@ -5,7 +5,8 @@ SSHGuard (fork)
 services. It aggregates system logs and blocks repeat offenders using one of
 several firewall backends.
 
-**This is my fork of the original SSHGuard.**
+**This is my fork of the original SSHGuard**, packaged for
+`Devuan <https://www.devuan.org/>`_.
 
 Public Git mirrors of my Mercurial repo:
 
@@ -111,3 +112,4 @@ Authors
 * Michele Mazzucchi <mij@bitchx.it>,
 * T.J. Jones <tjjones03@gmail.com>,
 * Kevin Zheng <kevinz5000@gmail.com>
+* `dr Jacek Stypuła <https://jacekstypula.pl/phd>`_ (fork maintainer)

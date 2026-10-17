@@ -35,11 +35,11 @@ If you are building from the source repository, you also need:
 - Autoconf/Automake
 - Docutils
 
-Debian and Ubuntu
-~~~~~~~~~~~~~~~~~
-::
+Devuan
+~~~~~~
+Install the build dependencies on `Devuan <https://www.devuan.org/>`_::
 
-    apt install autoconf automake byacc flex gcc python-docutils
+    apt install autoconf automake byacc flex gcc python3-docutils
 
 Fedora
 ~~~~~~
