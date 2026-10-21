@@ -17,12 +17,7 @@ run_iptables() {
 }
 
 fw_init() {
-    for family in 4 6; do
-        run_iptables "-n -L sshguard" "$family" >/dev/null 2>&1 ||
-            run_iptables "-N sshguard" "$family" || return 1
-        run_iptables "-C INPUT -j sshguard" "$family" >/dev/null 2>&1 ||
-            run_iptables "-I INPUT -j sshguard" "$family" || return 1
-    done
+    run_iptables "-L -n"
 }
 
 fw_block() {
@@ -39,6 +34,5 @@ fw_flush() {
 }
 
 fw_fin() {
-    run_iptables "-D INPUT -j sshguard" 4 >/dev/null 2>&1 || true
-    run_iptables "-D INPUT -j sshguard" 6 >/dev/null 2>&1 || true
+    :
 }

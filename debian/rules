@@ -8,6 +8,10 @@ export DEB_BUILD_MAINT_OPTIONS=hardening=+all
 override_dh_auto_configure:
 	dh_auto_configure -- --sysconfdir=/etc/sshguard
 
+override_dh_auto_test:
+	dh_auto_test
+	debian/test-runit-iptables || test $$? -eq 77
+
 override_dh_auto_install:
 	$(MAKE) DESTDIR=$$(pwd)/debian/uxmaster-sshguard prefix=/usr install
 	cp -a deb/* debian/uxmaster-sshguard

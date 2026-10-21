@@ -143,24 +143,48 @@ and other tools. E.g.::
 
 netfilter/iptables
 ------------------
-The backend creates the IPv4 and IPv6 *sshguard* chains and inserts a jump
-at the start of each *INPUT* chain automatically. Repeated starts do not add
-duplicate jumps. Blocked source addresses are blocked for all incoming ports
-and protocols. Use the SSHGuard whitelist for trusted addresses.
+Create a chain for SSHGuard::
 
-When SSHGuard stops, the backend removes its unconditional *INPUT* jumps.
-Other firewall rules remain unchanged. Do not add these jumps manually.
+    # iptables -N sshguard      # for IPv4
+    # ip6tables -N sshguard     # for IPv6
 
-Inspect the rules using::
+Update the INPUT chain to also pass the traffic to the sshguard chain at the
+very end of its processing. Specify in --dport all the ports of services
+your sshguard protects. If you want to prevent attackers from doing any
+traffic to the host, remove the option completely::
 
-    iptables -S INPUT
-    iptables -S sshguard
-    ip6tables -S INPUT
-    ip6tables -S sshguard
+    # block any traffic from abusers
+    iptables -A INPUT -j sshguard
+    ip6tables -A INPUT -j sshguard
 
-Replacing firewall rules with **iptables-restore** or **ip6tables-restore** can
-remove the jumps while SSHGuard is running. Restart SSHGuard after such a
-reload to reconnect the backend.
+Or::
+
+    # block abusers only for SSH, FTP, POP, IMAP services (use "multiport" module)
+    iptables -A INPUT -m multiport -p tcp --destination-ports 21,22,110,143 -j sshguard
+    ip6tables -A INPUT -m multiport -p tcp --destination-ports 21,22,110,143 -j sshguard
+
+Verify that you have NOT a default allow rule passing all ssh traffic higher
+in the chain. Verify that you have NOT a default deny rule blocking all ssh
+traffic in your firewall. In either case, you already have the skill to
+adjust your firewall setup.
+
+Here is a sample ruleset that makes sense::
+
+    iptables -N sshguard
+    # block whatever SSHGuard says be bad ...
+    iptables -A INPUT -j sshguard
+    # enable ssh, dns, http, https
+    iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+    iptables -A INPUT -p udp --dport 53 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+    # and block everything else (default deny)
+    iptables -P INPUT DROP
+
+When rebooting, most systems reset the firewall configuration by default. To
+preserve your configuration, you usually use the iptables-save and
+iptables-restore utilities. However, each Linux variant has its own "right
+way".
 
 nftables
 --------

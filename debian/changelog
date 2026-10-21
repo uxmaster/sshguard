@@ -1,3 +1,12 @@
+uxmaster-sshguard (2.5.1+20260923-4) unstable; urgency=medium
+
+  * Move INPUT jump setup and cleanup from the upstream iptables backend
+    into the runit run/finish scripts. Clean up stale bans after a crash.
+  * Restore upstream firewall code and documentation; run the firewall
+    lifecycle test from Debian packaging instead of upstream make check.
+
+ -- Jacek <sshguard@drStypula.pl>  Wed, 21 Oct 2026 20:00:34 +0200
+
 uxmaster-sshguard (2.5.1+20260923-3) unstable; urgency=medium
 
   * Connect the iptables backend to IPv4 and IPv6 INPUT on startup, without

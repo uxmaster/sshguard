@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run the real iptables backend in an isolated user/network namespace.
+# Run the real runit scripts and iptables backend in isolated namespaces.
 set -e
 PATH=/usr/sbin:/sbin:$PATH
 export PATH
@@ -13,9 +13,16 @@ if ! unshare --user --map-root-user --net true 2>/dev/null; then
     echo "SKIP: user/network namespaces are unavailable"
     exit 77
 fi
-source_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+source_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 exec unshare --user --map-root-user --net sh -e -s -- "$source_dir" <<'NETNS'
-. "$1/sshg-fw-iptables.sh"
+. "$1/src/fw/sshg-fw-iptables.sh"
+# Stub only daemon execution; the run/finish scripts use real iptables.
+test_bin=$(mktemp -d)
+trap 'rm -rf "$test_bin"' EXIT
+printf '#!/bin/sh\ntest "$1" = -P && test "$2" = /usr/sbin/sshguard\n' > "$test_bin/chpst"
+chmod +x "$test_bin/chpst"
+PATH="$test_bin:$PATH"
+export PATH
 ip link set lo up
 iptables -A INPUT -s 192.0.2.9 -j ACCEPT
 ip6tables -A INPUT -s 2001:db8::9 -j ACCEPT
@@ -41,8 +48,8 @@ PYTHON
 }
 
 probe_udp allowed
-fw_init
-fw_init
+sh "$1/deb/etc/sv/sshguard/run"
+sh "$1/deb/etc/sv/sshguard/run"
 for command in iptables ip6tables; do
     test "$("$command" -S INPUT | grep -c -- '-j sshguard')" -eq 1
     "$command" -C INPUT -j sshguard
@@ -59,26 +66,27 @@ probe_udp allowed
 # A firewall reload must be followed by a service restart to restore the hooks.
 iptables -F INPUT
 ip6tables -F INPUT
-fw_init
+sh "$1/deb/etc/sv/sshguard/run"
 iptables -C INPUT -j sshguard
 ip6tables -C INPUT -j sshguard
 fw_block 127.0.0.2 4 32
 fw_block ::1 6 128
-fw_flush
+# finish must also clean up bans left by a crashed backend.
+sh "$1/deb/etc/sv/sshguard/finish"
+sh "$1/deb/etc/sv/sshguard/finish"
 probe_udp allowed
-fw_fin
-fw_fin
 for command in iptables ip6tables; do
     if "$command" -C INPUT -j sshguard 2>/dev/null; then
         echo "FAIL: INPUT still references sshguard after shutdown"
         exit 1
     fi
-    "$command" -X sshguard
+    if "$command" -n -L sshguard >/dev/null 2>&1; then
+        echo "FAIL: sshguard chain still exists after shutdown"
+        exit 1
+    fi
 done
-fw_init
+sh "$1/deb/etc/sv/sshguard/run"
 fw_flush
-fw_fin
-iptables -X sshguard
-ip6tables -X sshguard
+sh "$1/deb/etc/sv/sshguard/finish"
 echo 'PASS: IPv4/IPv6 packet blocking, release, repeated setup, reload and shutdown'
 NETNS

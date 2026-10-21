@@ -1,5 +1,8 @@
 #!/bin/sh
 
-/usr/sbin/iptables -X sshguard >/dev/null 2>&1 || true
-/usr/sbin/ip6tables -X sshguard >/dev/null 2>&1 || true
+for firewall in /usr/sbin/iptables /usr/sbin/ip6tables; do
+    "$firewall" -w -D INPUT -j sshguard >/dev/null 2>&1 || true
+    "$firewall" -w -F sshguard >/dev/null 2>&1 || true
+    "$firewall" -w -X sshguard >/dev/null 2>&1 || true
+done
 exit 0
