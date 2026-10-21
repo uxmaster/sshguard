@@ -78,6 +78,19 @@ administrator choice::
 
 Under runit, the dedicated logger writes to ``/var/log/runit/sshguard``.
 
+The iptables backend creates the ``sshguard`` chains and connects them at the
+start of IPv4 and IPv6 ``INPUT`` when it starts. It removes those jumps when it
+stops. Blocked addresses are blocked for all incoming protocols and ports;
+configure trusted addresses in the whitelist. After replacing the firewall
+rules with ``iptables-restore``/``ip6tables-restore``, restart SSHGuard to restore
+its jumps.
+
+``src/fw/test-sshg-fw-iptables`` checks IPv4/IPv6 packet blocking and the backend
+lifecycle in an isolated user/network namespace on Linux. It needs iptables,
+iproute2, Python 3 and permission to create these namespaces, and does not
+change the host firewall. ``make check`` runs it, or skips it when these
+prerequisites are unavailable.
+
 You can always tweak
 ``/etc/sshguard/sshguard.conf`` to your needs (see
 `<examples/sshguard.conf.sample>`_ for examples).

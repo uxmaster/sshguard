@@ -1,3 +1,12 @@
+uxmaster-sshguard (2.5.1+20260923-3) unstable; urgency=medium
+
+  * Connect the iptables backend to IPv4 and IPv6 INPUT on startup, without
+    duplicate jumps, and detach it on shutdown. Previously, service startup
+    could leave an unreferenced chain and recorded bans had no effect.
+  * Test actual packet blocking and backend lifecycle in private namespaces.
+
+ -- Jacek <sshguard@drStypula.pl>  Wed, 21 Oct 2026 16:13:52 +0000
+
 uxmaster-sshguard (2.5.1+20260923-2) unstable; urgency=medium
 
   * Run SSHGuard in a separate process group under runit, preventing its

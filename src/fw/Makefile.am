@@ -2,6 +2,9 @@ AM_CFLAGS=-I$(top_srcdir)/src/common -DSIMCLIST_NO_DUMPRESTORE
 
 EXTRA_DIST = sshg-fw.in sshg-fw-firewalld.sh sshg-fw-ipfilter.sh sshg-fw-ipfw.sh sshg-fw-ipset.sh sshg-fw-iptables.sh sshg-fw-nft-sets.sh sshg-fw-null.sh sshg-fw-pf.sh
 
+TESTS = test-sshg-fw-iptables
+EXTRA_DIST += $(TESTS)
+
 libexec_PROGRAMS = sshg-fw-hosts
 libexec_SCRIPTS = sshg-fw-firewalld \
                   sshg-fw-ipfilter  \

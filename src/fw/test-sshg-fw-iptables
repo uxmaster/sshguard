@@ -1,0 +1,84 @@
+#!/bin/sh
+# Run the real iptables backend in an isolated user/network namespace.
+set -e
+PATH=/usr/sbin:/sbin:$PATH
+export PATH
+for tool in unshare iptables ip6tables ip python3; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        echo "SKIP: $tool is required"
+        exit 77
+    fi
+done
+if ! unshare --user --map-root-user --net true 2>/dev/null; then
+    echo "SKIP: user/network namespaces are unavailable"
+    exit 77
+fi
+source_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec unshare --user --map-root-user --net sh -e -s -- "$source_dir" <<'NETNS'
+. "$1/sshg-fw-iptables.sh"
+ip link set lo up
+iptables -A INPUT -s 192.0.2.9 -j ACCEPT
+ip6tables -A INPUT -s 2001:db8::9 -j ACCEPT
+
+# probe_udp EXPECTED (string: allowed/blocked); returns a shell status (int).
+probe_udp() {
+    python3 - "$1" <<'PYTHON'
+import socket
+import sys
+for family, destination, source in ((socket.AF_INET, '127.0.0.1', '127.0.0.2'),
+                                    (socket.AF_INET6, '::1', '::1')):
+    with socket.socket(family, socket.SOCK_DGRAM) as receiver, socket.socket(family, socket.SOCK_DGRAM) as sender:
+        receiver.bind((destination, 0))
+        receiver.settimeout(0.2)
+        sender.bind((source, 0))
+        sender.sendto(b'sshguard-test', receiver.getsockname())
+        try:
+            received = receiver.recv(64) == b'sshguard-test'
+        except socket.timeout:
+            received = False
+        assert received == (sys.argv[1] == 'allowed'), (family, sys.argv[1], received)
+PYTHON
+}
+
+probe_udp allowed
+fw_init
+fw_init
+for command in iptables ip6tables; do
+    test "$("$command" -S INPUT | grep -c -- '-j sshguard')" -eq 1
+    "$command" -C INPUT -j sshguard
+done
+iptables -C INPUT -s 192.0.2.9 -j ACCEPT
+ip6tables -C INPUT -s 2001:db8::9 -j ACCEPT
+fw_block 127.0.0.2 4 32
+fw_block ::1 6 128
+probe_udp blocked
+fw_release 127.0.0.2 4 32
+fw_release ::1 6 128
+probe_udp allowed
+
+# A firewall reload must be followed by a service restart to restore the hooks.
+iptables -F INPUT
+ip6tables -F INPUT
+fw_init
+iptables -C INPUT -j sshguard
+ip6tables -C INPUT -j sshguard
+fw_block 127.0.0.2 4 32
+fw_block ::1 6 128
+fw_flush
+probe_udp allowed
+fw_fin
+fw_fin
+for command in iptables ip6tables; do
+    if "$command" -C INPUT -j sshguard 2>/dev/null; then
+        echo "FAIL: INPUT still references sshguard after shutdown"
+        exit 1
+    fi
+    "$command" -X sshguard
+done
+fw_init
+fw_flush
+fw_fin
+iptables -X sshguard
+ip6tables -X sshguard
+echo 'PASS: IPv4/IPv6 packet blocking, release, repeated setup, reload and shutdown'
+NETNS
