@@ -124,6 +124,7 @@ static void yyerror(attack_t *, const char *);
 %token APP_BADREQUEST_SUFF
 /* coturn */
 %token COTURN_SSL_SHUTDOWN_PREF COTURN_SSL_SHUTDOWN_SUFF COTURN_SOCKET_ERROR_PREF COTURN_SOCKET_ERROR_SUFF
+%token COTURN_FORMAT_ERROR_PREF COTURN_FORMAT_ERROR_SUFF
 /* MSSQL */
 %token MSSQL_AUTHFAIL_PREF
 /* MySQL */
@@ -201,7 +202,7 @@ msg_single:
   | openvpnpsmsg      { attack->service = SERVICES_OPENVPN_PS; }
   | sqlservrmsg
   | appmsg            { attack->service = SERVICES_APP; }
-  | coturnmsg         { attack->service = SERVICES_COTURN; }
+  | coturnmsg         { attack->service = SERVICES_COTURN; attack->dangerousness = 1; }
   | proxmoxvemsg      { attack->service = SERVICES_PROXMOXVE; }
   ;
 
@@ -455,6 +456,7 @@ coturnmsg:
   | COTURN_SSL_SHUTDOWN_PREF '[' addr ']' COTURN_SSL_SHUTDOWN_SUFF
   | COTURN_SOCKET_ERROR_PREF addr COTURN_SOCKET_ERROR_SUFF
   | COTURN_SOCKET_ERROR_PREF '[' addr ']' COTURN_SOCKET_ERROR_SUFF
+  | COTURN_FORMAT_ERROR_PREF addr COTURN_FORMAT_ERROR_SUFF
   ;
  /* attack rules for Proxmox VE */
 proxmoxvemsg:

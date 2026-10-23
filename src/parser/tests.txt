@@ -30,68 +30,68 @@ M
 
 #### coturn
 Dec  7 10:43:12 node-23154 turnserver: 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local 167.71.177.111:443, remote 145.224.123.172:18602)
-998 145.224.123.172 4 10
+998 145.224.123.172 4 1
 M
-Dec  7 10:43:11 node-23154 turnserver: 3: (962): INFO: session 002000000000000006: closed (2nd stage), user <> realm <sa.link> origin <>, local 167.71.177.111:443, remote 91.102.183.84:15491, reason: TLS/TCP socket buffer operation error (callback)
-998 91.102.183.84 4 10
+Dec  7 10:43:11 node-23154 turnserver: 3: (962): INFO: session 002000000000000006: closed (2nd stage), user <> realm <example.org> origin <>, local 167.71.177.111:443, remote 91.102.183.84:15491, reason: TLS/TCP socket buffer operation error (callback)
+998 91.102.183.84 4 1
 M
 
 # Legacy, 4.17, and 4.18 formats, including new-log-timestamp=false.
 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-3: (960): INFO: session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
-998 198.51.100.20 4 10
+3: (960): INFO: session 000000000000000007: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 1
 M
 2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
-998 198.51.100.20 4 10
+2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 1
 M
 3 INFO session 000000000000000007: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-3 INFO session 000000000000000007: closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
-998 198.51.100.20 4 10
+3 INFO session 000000000000000007: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
+998 198.51.100.20 4 1
 M
 2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
-998 198.51.100.20 4 10
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 1
 M
 3 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-3 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
-998 198.51.100.20 4 10
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 1
 M
 Sep 30 16:00:00 node turnserver: 2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-@400000005f8a6ba2232c8c0e 2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
-998 198.51.100.20 4 10
+@400000005f8a6ba2232c8c0e 2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 1
 M
 2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed (local [2001:db8::10]:443, remote [2001:db8::20]:50000) (session 000000000000000007)
-998 2001:db8::20 6 10
+998 2001:db8::20 6 1
 M
-2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local [2001:db8::10]:443, remote [2001:db8::20]:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
-998 2001:db8::20 6 10
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <example.org> origin <>, local [2001:db8::10]:443, remote [2001:db8::20]:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+998 2001:db8::20 6 1
 M
 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local [2001:db8::10]:443, remote [2001:db8::20]:50000)
-998 2001:db8::20 6 10
+998 2001:db8::20 6 1
 M
 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed: Resource temporarily unavailable (local 192.0.2.10:443, remote 198.51.100.20:50000)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
 2026-09-30T16:00:00.123+0200 INFO socket event: SSL shutdown received, socket to be closed: Resource temporarily unavailable (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
-2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <rtc> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <rtc> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
 *
 M
-2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <speakapp.link> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: allocation timeout (session 000000000000000007)
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: allocation timeout (session 000000000000000007)
 *
 M
 2026-09-30T16:00:00.123+0200 INFO socket event: socket read failed, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000) (session 000000000000000007)
@@ -104,15 +104,345 @@ M
 *
 M
 
-# Preserve legacy localhost endpoints and single-label realm/origin names.
+# Realm, origin and local endpoint are skipped; only the remote address is extracted.
 3: (960): INFO: session 000000000000000007: SSL shutdown received, socket to be closed (local localhost:443, remote 198.51.100.20:50000)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
 3: (960): INFO: session 000000000000000007: closed (2nd stage), user <> realm <local> origin <localhost>, local localhost:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
 M
 2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <local> origin <>, local localhost:443, remote 198.51.100.20:50000, reason: TLS/TCP socket buffer operation error (callback) (session 000000000000000007)
-998 198.51.100.20 4 10
+998 198.51.100.20 4 1
+M
+3 INFO closed (2nd stage), user <> realm <> origin <https://meet.example.org:8443>, local [2001:db8::10]:80, remote 198.51.100.20:50000, reason: general (session 000000000000000007)
+998 198.51.100.20 4 1
+M
+3 INFO closed (2nd stage), user <> realm <r> origin <https://meet.example.org/path, remote 203.0.113.99:50000>, local 192.0.2.10:80, remote [2001:db8::20]:50000, reason: general (session 000000000000000007)
+998 2001:db8::20 6 1
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <https://meet.example.org, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: general (session 000000000000000007)
+*
+M
+
+# Plain TCP failures, including the ISO syslog prefix from production.
+2026-10-20T20:35:54.520122+00:00 node-3 turnserver: 4870344: (2039752): INFO: session 000000000000113623: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: general
+998 198.51.100.20 4 1
+M
+3: (960): INFO: session 000000000000000007: closed (2nd stage), user <> realm <local> origin <localhost>, local localhost:80, remote 198.51.100.20:50000, reason: TCP socket buffer operation error (callback)
+998 198.51.100.20 4 1
+M
+2026-09-30T16:00:00.123+0200 INFO session 000000000000000007: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: general
+998 198.51.100.20 4 1
+M
+3 INFO session 000000000000000007: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: TCP socket buffer operation error (callback)
+998 198.51.100.20 4 1
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <> realm <example.org> origin <>, local [2001:db8::10]:80, remote [2001:db8::20]:50000, reason: general (session 000000000000000007)
+998 2001:db8::20 6 1
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: TCP socket buffer operation error (callback) (session 000000000000000007)
+998 198.51.100.20 4 1
+M
+
+# Multiple matching lines from one session each contribute a point.
+3: (960): INFO: session 000000000000000008: closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: general
+998 198.51.100.20 4 1
+M
+3: (960): INFO: session 000000000000000008: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000)
+998 198.51.100.20 4 1
+M
+
+# Named users, normal challenges and unrelated close reasons stay unscored.
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <rtc> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: general (session 000000000000000007)
+*
+M
+2026-09-30T16:00:00.123+0200 INFO closed (2nd stage), user <rtc> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: TCP socket buffer operation error (callback) (session 000000000000000007)
+*
+M
+3: (960): INFO: session 000000000000000007: realm <example.org> user <>: incoming packet message processed, error 401: Unauthorized
+*
+M
+3: (960): INFO: session 000000000000000007: realm <example.org> user <rtc>: incoming packet ALLOCATE processed, success
+*
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: TCP connection closed by client (callback) (session 000000000000000007)
+*
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: allocation watchdog determined stale session state (session 000000000000000007)
+*
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:80, remote 198.51.100.20:50000, reason: general error (session 000000000000000007)
+*
+M
+
+# Final verbose error records include the request IP before client-supplied fields.
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: User name is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 198.51.100.20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet message processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+2026-10-23T00:10:00.123+0200 INFO remote 2001:db8::20, origin <https://meet.example.org> realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 400: Nonce is too long (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+Oct 23 00:10:00 node turnserver: 3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+2026-10-23T00:10:00+00:00 node turnserver: 3 INFO remote 2001:db8::20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 2001:db8::20 6 1
+M
+@400000005f8a6ba2232c8c0e 3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote ::ffff:198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>, remote 203.0.113.99, user <garbage>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+998 198.51.100.20 4 1
+M
+
+# Intermediate method records do not count the same request a second time.
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet ALLOCATE processed, error 400: User name is too long (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet ALLOCATE processed, error 400: wrong username (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet ALLOCATE processed, error 400: Nonce is too long (session 000000000000000042)
+*
+M
+
+# Authentication recovery, other errors and incomplete records stay unscored.
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 438: Wrong nonce (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 438: Wrong nonce (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 438: Stale nonce (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 438: Stale nonce (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 437: Allocation mismatch: wrong credentials (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet CONNECTION_BIND processed, error 437: Allocation mismatch: wrong credentials (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 401: wrong username (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, success (session 000000000000000042)
+*
+M
+3 INFO realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+*
+M
+3 INFO remote unknown, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 42)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username extra (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042) extra
+*
+M
+3 ERROR remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+*
+M
+3 ERROR STUN format error: wrong username, remote 198.51.100.20 (session 000000000000000042)
+*
+M
+3 ERROR wrong username: 3 INFO remote 203.0.113.99, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username (session 000000000000000042)
+*
+M
+
+# Non-INFO username records do not contribute a second point.
+3 ERROR handle_turn_allocate: wrong username: bad name, remote 203.0.113.99
+*
+M
+3 ERROR wrong username: bad name, remote 203.0.113.99 (session 000000000000000042, check_stun_auth)
+*
+M
+
+# An incomplete Coturn record must not keep its scanner state for the next line.
+3 INFO remote [
+*
+M
+Invalid user inexu from 198.51.100.21
+100 198.51.100.21 4 10
+M
+3 INFO remote 198.51.100.20, realm <example.org> user <alice>: incoming packet message processed, error 400: wrong username
+*
+M
+Invalid user inexu from 198.51.100.22
+100 198.51.100.22 4 10
+M
+3 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote unknown:50000)
+*
+M
+Invalid user inexu from 198.51.100.23
+100 198.51.100.23 4 10
+M
+3 INFO closed (2nd stage), user <> realm <example.org> origin <>, local 192.0.2.10:443, remote 198.51.100.20:50000, reason: allocation timeout
+*
+M
+Invalid user inexu from 198.51.100.24
+100 198.51.100.24 4 10
+M
+
+# Sharing the scanner state must not mix prefixes and suffixes of different signatures.
+3 INFO socket event: SSL shutdown received, socket to be closed (local 192.0.2.10:443, remote 198.51.100.20:50000, reason: general (session 000000000000000042)
+*
+M
+3 INFO remote 198.51.100.20:50000) (session 000000000000000042)
+*
 M
 
 #### SSH {{{

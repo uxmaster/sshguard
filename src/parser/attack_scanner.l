@@ -46,7 +46,7 @@
  /* for git services */
 %s gitea_autherr
  /* for coturn services */
-%s corturn_ssl_shutdown coturn_socket_error
+%x coturn
 
 MONTH       (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)
 MONTHNO     0[0-9]|1[0-2]
@@ -107,13 +107,9 @@ APP_BADREQUEST 40[014]{1}
   * https://github.com/coturn/coturn/releases/tag/4.17.0
   * https://github.com/coturn/coturn/releases/tag/4.18.0
   */
-COTURN_SESSION_INFO (([0-9]+|{TIMESTAMP_ISO8601})": ("[0-9]+"): INFO: session "[0-9]{18}": "|({TIMESTAMP_ISO8601}|[0-9]+)" INFO "("session "[0-9]{18}": ")?)
+COTURN_INFO_PREFIX (([0-9]+|{TIMESTAMP_ISO8601})": ("[0-9]+"): INFO: session "[0-9]{18}": "|({TIMESTAMP_ISO8601}|[0-9]+)" INFO "("session "[0-9]{18}": ")?)
 COTURN_SESSION_SUFFIX (" (session "[0-9]{18}")")?
- /* Preserve single-label Coturn names after upstream tightened HOSTNAME.
-  * https://bitbucket.org/sshguard/sshguard/commits/e8278dc6fd4e7d61447183a67f309b58533aa403
-  */
-COTURN_HOSTNAME ([-a-zA-Z0-9]+\.)*[-a-zA-Z0-9]+
-COTURN_ADDR ({HOSTADDR}|"localhost"|"["{HOSTADDR}"]")
+COTURN_FORMAT_ERROR ("User name is too long"|"wrong username"|"Nonce is too long")
 
  // timestamp (optional PRI) hostname
 SYSLOG_HEADER     ({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+{FACLEVEL}?[ ]*{SYSLOG_HOSTNAME}[ ]+
@@ -337,10 +333,12 @@ HTTP_PATH                  "/"[^ ]+
 "] "{APP_BADREQUEST}" "[/]?{WORD}.*                   { return APP_BADREQUEST_SUFF; }
 
  /* coturn */
-{COTURN_SESSION_INFO}("socket event: ")?"SSL shutdown received, socket to be closed"(": "[^()\r\n]+)?" (local "{COTURN_ADDR}":"{NUMBER}", remote "        { BEGIN(corturn_ssl_shutdown); return COTURN_SSL_SHUTDOWN_PREF; }
-<corturn_ssl_shutdown>":"{NUMBER}")"{COTURN_SESSION_SUFFIX}                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
-{COTURN_SESSION_INFO}"closed (2nd stage), user <> realm <"{COTURN_HOSTNAME}"> origin <"{COTURN_HOSTNAME}*">, local "{COTURN_ADDR}":"{NUMBER}", remote "                                                 { BEGIN(coturn_socket_error); return COTURN_SOCKET_ERROR_PREF; }
-<coturn_socket_error>":"{NUMBER}", reason: TLS/TCP socket buffer operation error (callback)"{COTURN_SESSION_SUFFIX}  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
+{COTURN_INFO_PREFIX}("socket event: ")?"SSL shutdown received, socket to be closed"(": "[^()\r\n]+)?" (local "[^,\r\n]+", remote "        { BEGIN(coturn); return COTURN_SSL_SHUTDOWN_PREF; }
+<coturn>":"{NUMBER}")"{COTURN_SESSION_SUFFIX}                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
+{COTURN_INFO_PREFIX}"closed (2nd stage), user <> realm <"[^>\r\n]*"> origin <"[^>\r\n]*">, local "[^,\r\n]+", remote "                                                 { BEGIN(coturn); return COTURN_SOCKET_ERROR_PREF; }
+<coturn>":"{NUMBER}", reason: "("general"|("TLS/")?"TCP socket buffer operation error (callback)"){COTURN_SESSION_SUFFIX}  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
+{COTURN_INFO_PREFIX}"remote "  { BEGIN(coturn); return COTURN_FORMAT_ERROR_PREF; }
+<coturn>", "("origin <"[^\r\n]*"> ")?"realm <"[^\r\n]*"> user <"[^\r\n]*">: incoming packet "("message"|"CONNECTION_BIND")" processed, error 400: "{COTURN_FORMAT_ERROR}" (session "[0-9]{18}")"  { BEGIN(INITIAL); return COTURN_FORMAT_ERROR_SUFF; }
 
  /* Gitea - also with color codes */
 (({COLOR_CODE})?{TIMESTAMP_YMD_HMS}" "({COLOR_CODE})?)?(({COLOR_CODE})?[a-zA-Z0-9\:\(\)\/\.]*({COLOR_CODE}[^[]*{COLOR_CODE})?" ")?(({COLOR_CODE})?"["[A-Z]"]"({COLOR_CODE})?" ")?("["({COLOR_CODE})?[0-9a-f]*({COLOR_CODE})?"] ")?"Failed authentication attempt for "({COLOR_CODE})?.*({COLOR_CODE})?" from "({COLOR_CODE})?  { BEGIN(gitea_autherr); return GITEA_ERR_PREF; }
@@ -368,14 +366,14 @@ HTTP_PATH                  "/"[^ ]+
 
  /**         COMMON-USE TOKENS       do not touch these          **/
  /* an IPv4 address */
-{IPV4}                                                          { yylval.str = yytext; return IPv4; }
-{IPV4MAPPED6}                                                   { yylval.str = strrchr(yytext, ':')+1; return IPv4; }
+<*>{IPV4}                                                       { yylval.str = yytext; return IPv4; }
+<*>{IPV4MAPPED6}                                                { yylval.str = strrchr(yytext, ':')+1; return IPv4; }
 
  /* an IPv6 address, stripping an optional interface identifier, e.g. %eth0 */
-{IPV6}                                                          { yylval.str = strtok(yytext, "%"); return IPv6; }
+<*>{IPV6}                                                       { yylval.str = strtok(yytext, "%"); return IPv6; }
 
  /* an host address (PTR) */
-{HOSTADDR}                                                      { yylval.str = yytext; return HOSTADDR; }
+<*>{HOSTADDR}                                                   { yylval.str = yytext; return HOSTADDR; }
 {NUMBER}                                                        { yylval.num = (int)strtol(yytext, (char **)NULL, 10); return INTEGER; }
  /* syslog timestamp */
  /*{MONTH}\ +{DAYNO}\ +{HOUR}:{MINPS}:{MINPS}                      { return TIMESTAMP_SYSLOG; }*/
@@ -395,16 +393,17 @@ HTTP_PATH                  "/"[^ ]+
 
 "\""[^"]*"\"" { return STRING; }
 
-[ \n\r\t]+            /* eat blanks */
+<*>[ \n\r\t]+         /* eat blanks */
  /* literals */
  /*\n                                                              { return NEWLINE; } */
-.                                                               { return yytext[0]; }
+<*>.                                                            { return yytext[0]; }
 
  /**         end of COMMON-USE TOKENS                           **/
 
 %%
 
 void scanner_init(char *str) {
+    BEGIN(INITIAL);
     yy_scan_string(str);
 }
 

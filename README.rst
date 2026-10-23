@@ -38,6 +38,24 @@ See `<src/parser/tests.txt>`_ for more examples of log lines describing
 attacks (those with ``999 ...``) and normal events (resulting in ``*``).
 
 I've also added attack signatures for `coturn <https://github.com/coturn/coturn>`_.
+Each matching Coturn log line scores 1 point: SSL shutdowns, socket buffer
+errors with an empty user over TCP or TLS/TCP, and ``reason: general`` closures
+with an empty user. Matching lines from the same session each add a point.
+Session IDs are checked as part of the log format, without storing or
+correlating them.
+With verbose logging enabled, the Coturn fork includes the request IP in
+existing ``INFO`` error records. SSHGuard scores 1 point only for final
+``message`` and ``CONNECTION_BIND`` records for error 400 with
+``User name is too long``, ``wrong username``, or ``Nonce is too long``.
+Intermediate method records
+are ignored to avoid counting the same rejected request twice. The fork
+reports these format failures in the existing verbose request log, without
+echoing the rejected username in a separate ``ERROR`` record. These records
+detect malformed requests inside an open connection, without a per-session
+score limit. Ordinary 401 challenges,
+``Wrong nonce``, ``Stale nonce``, and allocation credential mismatches are
+not matched by these rules. Other request floods still require their own
+server-side detection.
 
 For all the changes, consult `<debian/changelog>`_.
 
