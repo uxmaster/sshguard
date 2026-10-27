@@ -202,7 +202,7 @@ msg_single:
   | openvpnpsmsg      { attack->service = SERVICES_OPENVPN_PS; }
   | sqlservrmsg
   | appmsg            { attack->service = SERVICES_APP; }
-  | coturnmsg         { attack->service = SERVICES_COTURN; attack->dangerousness = 1; }
+  | coturnmsg         { attack->service = SERVICES_COTURN; }
   | proxmoxvemsg      { attack->service = SERVICES_PROXMOXVE; }
   ;
 
@@ -452,10 +452,10 @@ appmsg:
 
 /* attack rules for coturn */
 coturnmsg:
-    COTURN_SSL_SHUTDOWN_PREF addr COTURN_SSL_SHUTDOWN_SUFF
-  | COTURN_SSL_SHUTDOWN_PREF '[' addr ']' COTURN_SSL_SHUTDOWN_SUFF
-  | COTURN_SOCKET_ERROR_PREF addr COTURN_SOCKET_ERROR_SUFF
-  | COTURN_SOCKET_ERROR_PREF '[' addr ']' COTURN_SOCKET_ERROR_SUFF
+    COTURN_SSL_SHUTDOWN_PREF addr COTURN_SSL_SHUTDOWN_SUFF           { attack->dangerousness = 1; }
+  | COTURN_SSL_SHUTDOWN_PREF '[' addr ']' COTURN_SSL_SHUTDOWN_SUFF   { attack->dangerousness = 1; }
+  | COTURN_SOCKET_ERROR_PREF addr COTURN_SOCKET_ERROR_SUFF           { attack->dangerousness = 1; }
+  | COTURN_SOCKET_ERROR_PREF '[' addr ']' COTURN_SOCKET_ERROR_SUFF   { attack->dangerousness = 1; }
   | COTURN_FORMAT_ERROR_PREF addr COTURN_FORMAT_ERROR_SUFF
   ;
  /* attack rules for Proxmox VE */

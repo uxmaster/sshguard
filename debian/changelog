@@ -1,3 +1,18 @@
+uxmaster-sshguard (2.6.0-1) unstable; urgency=medium
+
+  * Merge upstream 2.6.0, updating the version and release documentation.
+  * Extend Coturn signatures to plain TCP failures and malformed STUN
+    request logs containing the remote address.
+  * Require explicit transport in scored Coturn records to prevent bans
+    based on spoofed UDP sources. Accept DTLS request errors after record
+    authentication; keep socket shutdown/closure signatures limited to TCP/TLS.
+  * Score malformed Coturn requests at 10 points and transport events at
+    1 point, including repeated records from the same session. Keep normal
+    authentication challenges and nonce refreshes unscored.
+  * Use an exclusive Coturn scanner state and skip unused log fields.
+
+ -- Jacek <sshguard@drStypula.pl>  Fri, 23 Oct 2026 18:45:39 +0200
+
 uxmaster-sshguard (2.5.1+20260923-4) unstable; urgency=medium
 
   * Move INPUT jump setup and cleanup from the upstream iptables backend

@@ -38,13 +38,20 @@ See `<src/parser/tests.txt>`_ for more examples of log lines describing
 attacks (those with ``999 ...``) and normal events (resulting in ``*``).
 
 I've also added attack signatures for `coturn <https://github.com/coturn/coturn>`_.
-Each matching Coturn log line scores 1 point: SSL shutdowns, socket buffer
+Coturn records must include an explicit transport. Socket shutdown and
+closure records require ``TCP``, ``TLS/TCP`` or ``TLS/TCP ?``. Malformed STUN
+request records also accept ``DTLS``, whose records are authenticated before
+STUN parsing. Plain UDP, unknown transports and records without a transport
+are ignored, since an unauthenticated UDP source can be forged.
+Transport records score 1 point: SSL shutdowns, socket buffer
 errors with an empty user over TCP or TLS/TCP, and ``reason: general`` closures
 with an empty user. Matching lines from the same session each add a point.
 Session IDs are checked as part of the log format, without storing or
 correlating them.
+These transport events can also occur for legitimate clients, so they retain
+a lower score than malformed requests.
 With verbose logging enabled, the Coturn fork includes the request IP in
-existing ``INFO`` error records. SSHGuard scores 1 point only for final
+existing ``INFO`` error records. SSHGuard scores 10 points only for final
 ``message`` and ``CONNECTION_BIND`` records for error 400 with
 ``User name is too long``, ``wrong username``, or ``Nonce is too long``.
 Intermediate method records

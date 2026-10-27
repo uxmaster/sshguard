@@ -110,6 +110,7 @@ APP_BADREQUEST 40[014]{1}
 COTURN_INFO_PREFIX (([0-9]+|{TIMESTAMP_ISO8601})": ("[0-9]+"): INFO: session "[0-9]{18}": "|({TIMESTAMP_ISO8601}|[0-9]+)" INFO "("session "[0-9]{18}": ")?)
 COTURN_SESSION_SUFFIX (" (session "[0-9]{18}")")?
 COTURN_FORMAT_ERROR ("User name is too long"|"wrong username"|"Nonce is too long")
+COTURN_TCP ("TCP"|"TLS/TCP"(" ?")?)
 
  // timestamp (optional PRI) hostname
 SYSLOG_HEADER     ({TIMESTAMP_SYSLOG}|{TIMESTAMP_ISO8601})[ ]+{FACLEVEL}?[ ]*{SYSLOG_HOSTNAME}[ ]+
@@ -334,11 +335,12 @@ HTTP_PATH                  "/"[^ ]+
 
  /* coturn */
 {COTURN_INFO_PREFIX}("socket event: ")?"SSL shutdown received, socket to be closed"(": "[^()\r\n]+)?" (local "[^,\r\n]+", remote "        { BEGIN(coturn); return COTURN_SSL_SHUTDOWN_PREF; }
-<coturn>":"{NUMBER}")"{COTURN_SESSION_SUFFIX}                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
+<coturn>":"{NUMBER}", transport "{COTURN_TCP}")"{COTURN_SESSION_SUFFIX}                                                          { BEGIN(INITIAL); return COTURN_SSL_SHUTDOWN_SUFF; }
 {COTURN_INFO_PREFIX}"closed (2nd stage), user <> realm <"[^>\r\n]*"> origin <"[^>\r\n]*">, local "[^,\r\n]+", remote "                                                 { BEGIN(coturn); return COTURN_SOCKET_ERROR_PREF; }
-<coturn>":"{NUMBER}", reason: "("general"|("TLS/")?"TCP socket buffer operation error (callback)"){COTURN_SESSION_SUFFIX}  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
+<coturn>":"{NUMBER}", transport "{COTURN_TCP}", reason: "("general"|("TLS/")?"TCP socket buffer operation error (callback)"){COTURN_SESSION_SUFFIX}  { BEGIN(INITIAL); return COTURN_SOCKET_ERROR_SUFF; }
 {COTURN_INFO_PREFIX}"remote "  { BEGIN(coturn); return COTURN_FORMAT_ERROR_PREF; }
-<coturn>", "("origin <"[^\r\n]*"> ")?"realm <"[^\r\n]*"> user <"[^\r\n]*">: incoming packet "("message"|"CONNECTION_BIND")" processed, error 400: "{COTURN_FORMAT_ERROR}" (session "[0-9]{18}")"  { BEGIN(INITIAL); return COTURN_FORMAT_ERROR_SUFF; }
+ /* DTLS request logs follow record authentication; socket errors may precede it. */
+<coturn>", transport "({COTURN_TCP}|"DTLS")", "("origin <"[^\r\n]*"> ")?"realm <"[^\r\n]*"> user <"[^\r\n]*">: incoming packet "("message"|"CONNECTION_BIND")" processed, error 400: "{COTURN_FORMAT_ERROR}" (session "[0-9]{18}")"  { BEGIN(INITIAL); return COTURN_FORMAT_ERROR_SUFF; }
 
  /* Gitea - also with color codes */
 (({COLOR_CODE})?{TIMESTAMP_YMD_HMS}" "({COLOR_CODE})?)?(({COLOR_CODE})?[a-zA-Z0-9\:\(\)\/\.]*({COLOR_CODE}[^[]*{COLOR_CODE})?" ")?(({COLOR_CODE})?"["[A-Z]"]"({COLOR_CODE})?" ")?("["({COLOR_CODE})?[0-9a-f]*({COLOR_CODE})?"] ")?"Failed authentication attempt for "({COLOR_CODE})?.*({COLOR_CODE})?" from "({COLOR_CODE})?  { BEGIN(gitea_autherr); return GITEA_ERR_PREF; }
