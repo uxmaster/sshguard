@@ -1,3 +1,9 @@
+uxmaster-sshguard (2.6.0-2) unstable; urgency=medium
+
+  * Recognize 403 errors in Bun application logs as attacks.
+
+ -- Jacek <sshguard@drStypula.pl>  Sun, 08 Nov 2026 13:41:59 +0100
+
 uxmaster-sshguard (2.6.0-1) unstable; urgency=medium
 
   * Merge upstream 2.6.0, updating the version and release documentation.

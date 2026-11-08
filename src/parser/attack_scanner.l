@@ -101,7 +101,7 @@ HTTP_VERSION    HTTP"/"[0-9]("."[0-9])?
  // IP addresss and hostname may also be present in HOSTNAME.
 SYSLOG_HOSTNAME   {WORD}|{HOSTADDR}
 
-APP_BADREQUEST 40[014]{1}
+APP_BADREQUEST 40[0134]{1}
 
  /* Coturn 4.17 changed log prefixes; 4.18 moved session IDs to the suffix.
   * https://github.com/coturn/coturn/releases/tag/4.17.0

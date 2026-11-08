@@ -26,12 +26,13 @@ My changes
 
 I've added attack signatures for my app server in `Bun <https://bun.sh/>`_::
 
-    [addr] 40[014]{1} [/]?{WORD}.*
+    [addr] 40[0134]{1} [/]?{WORD}.*
 
 So it catches lines like::
 
     [6.6.6.3] 401 Session
     [6.6.6.0] 401 /login wtf@example.com
+    [6.6.6.4] 403 /admin
     [2001:db8::a11:beef:7ac1] 404 /reset/:token
 
 See `<src/parser/tests.txt>`_ for more examples of log lines describing
